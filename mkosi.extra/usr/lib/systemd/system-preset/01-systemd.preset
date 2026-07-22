@@ -1,6 +1,9 @@
 disable systemd-timesyncd.service
 disable sshd.socket
 disable sshd.service
+disable systemd-firstboot.service
+disable systemd-homed-firstboot.service
 enable firewalld.service
 enable systemd-resolved.service
 enable plymouth.service
+mask systemd-firstboot.service
