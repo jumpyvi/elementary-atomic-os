@@ -24,20 +24,19 @@
 
 ## Building Locally
 
-As elementary OS is built with the Debian version of `live-build`, not the Ubuntu patched version, it's easiest to build an elementary .iso in a Debian VM or container. This prevents messing up your host system too.
+1. Install `mkosi`, `just`, `fzf`
+2. Generate keys `just _gen_keys`
+3. Build `just build-sysupdate`
+4. Resize `just resize`
 
-The following example assumes you have Docker correctly installed and set up, and that your current working directory is this repo. When done, your image will be in the `builds` folder.
+### Run with qemu
 
-Configure the channel (stable, daily) in the configuration file (`etc/terraform-amd64.conf` or `etc/terraform-arm64.conf` based on your host architecture), then run:
+You can directly boot the .raw image with qemu, make sure to have TPM and UEFI enabled
 
-```sh
-docker run --rm --privileged -it \
-    -v /proc:/proc \
-    -v ${PWD}:/working_dir \
-    -w /working_dir \
-    debian:latest \
-    ./build.sh
-```
+
+### Run on baremetal
+
+`sudo dd if=mkosi.output/Elementary---.raw of=/dev/sdX bs=4M status=progress`
 
 ## Further Information
 

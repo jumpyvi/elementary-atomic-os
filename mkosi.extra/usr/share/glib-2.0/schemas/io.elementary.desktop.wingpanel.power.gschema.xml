@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.elementary.desktop.wingpanel.power" path="/io/elementary/desktop/wingpanel/power/">
+    <key name="show-percentage" type="b">
+      <default>false</default>
+      <summary>Sets if the percentage of the primary battery is shown in the panel.</summary>
+      <description>Enable this to see the percentage of the battery directly in the panel without having to click onto the power-indicator.</description>
+    </key>
+  </schema>
+</schemalist>
