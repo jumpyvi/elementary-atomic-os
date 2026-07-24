@@ -10,7 +10,7 @@ lazy-spin:
     just build-sysupdate && just resize
 
 build-sysupdate:
-    mkosi -B --debug --force --profile=sysupdate && \
+    mkosi build --debug --force --profile=sysupdate && \
     just sign-repo
 
 resize:
