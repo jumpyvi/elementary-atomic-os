@@ -5,7 +5,15 @@ set -e
 KEY="$1"
 SECRET="$2"
 ENDPOINT="$3"
-BUCKET="$4"
+UPDATES_BUCKET="$4"
+INSTALL_BUCKET="$5"
+
+upload_file() {
+  local bucket="$1"
+  local src="$2"
+  local dst="$3"
+  python3 upload.py "$KEY" "$SECRET" "$ENDPOINT" "$bucket" "$src" "$dst" || exit 1
+}
 
 echo -e "
 #----------------------#
@@ -17,24 +25,31 @@ apt-get update
 apt-get install -y python3 python3-boto3
 
 echo -e "
-#------------#
-# UPLOAD RAW #
-#------------#
+#------------------#
+# UPLOAD TO UPDATES CDN #
+#------------------#
 "
 
-RAWPATHS="$(find mkosi.output -name "*.raw" ! -name "*.esp.raw")"
-while IFS= read -r RAWPATH; do
-  SHAPATH="${RAWPATH}.sha256"
-  MD5PATH="${RAWPATH}.md5"
+ALLFILES="$(find mkosi.output -type f)"
+while IFS= read -r FILE; do
+  REMOTE="$(basename "$FILE")"
+  echo "uploading $REMOTE to $UPDATES_BUCKET..."
+  upload_file "$UPDATES_BUCKET" "$FILE" "$REMOTE"
+done <<< "$ALLFILES"
 
-  sha256sum "$RAWPATH" | tee "$SHAPATH"
-  md5sum "$RAWPATH" | tee "$MD5PATH"
+echo -e "
+#------------------#
+# UPLOAD TO INSTALLER ISO CDN #
+#------------------#
+"
 
-  REMOTE="$(basename "$RAWPATH")"
-  echo "uploading $REMOTE..."
-  python3 upload.py "$KEY" "$SECRET" "$ENDPOINT" "$BUCKET" "$RAWPATH" "$REMOTE" || exit 1
-  echo "uploading $REMOTE.sha256..."
-  python3 upload.py "$KEY" "$SECRET" "$ENDPOINT" "$BUCKET" "$SHAPATH" "$REMOTE.sha256" || exit 1
-  echo "uploading $REMOTE.md5..."
-  python3 upload.py "$KEY" "$SECRET" "$ENDPOINT" "$BUCKET" "$MD5PATH" "$REMOTE.md5" || exit 1
-done <<< "$RAWPATHS"
+RAW="mkosi.output/Elementary_x86-64.raw"
+SHA="${RAW}.sha256"
+MD5="${RAW}.md5"
+
+sha256sum "$RAW" | tee "$SHA"
+md5sum "$RAW" | tee "$MD5"
+
+upload_file "$INSTALL_BUCKET" "$RAW" "elementaryos.raw"
+upload_file "$INSTALL_BUCKET" "$SHA" "elementaryos.raw.sha256"
+upload_file "$INSTALL_BUCKET" "$MD5" "elementaryos.raw.md5"
