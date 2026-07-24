@@ -27,18 +27,17 @@
 1. Install `mkosi`, `just`, `fzf`
 2. Generate keys `just _gen_keys`
 3. Build `just build-sysupdate`
-4. Resize `just resize`
 
 ### Run with qemu
 
-You can directly boot the .raw image with qemu, make sure to have TPM and UEFI enabled
+Resize `just resize`, and you can then directly boot the .raw image with qemu. Make sure to have TPM and UEFI enabled in libvirt (Gnome Boxes won't work).
 
 
 ### Install / run on baremetal
 
 Before running the resize (step 3) above, copy the main .raw file to a 40+ GB USB stick with one of the options below. It will then expand and be bootable.
 
-`sudo dd if=mkosi.output/Elementary_{X}_x86-64.raw of=/dev/sd{X} bs=4M status=progress`
+`sudo dd if=mkosi.output/Elementary_*_x86-64.raw of=/dev/sd{X} bs=4M status=progress`
 
 or
 
