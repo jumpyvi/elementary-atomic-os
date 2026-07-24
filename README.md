@@ -30,7 +30,8 @@
 
 ### Run with qemu
 
-Resize `just resize`, and you can then directly boot the .raw image with qemu. Make sure to have TPM and UEFI enabled in libvirt (Gnome Boxes won't work).
+- Resize with `qemu-img resize "$(ls mkosi.output/Elementary_*_x86-64.raw)" +40G`, and you can then directly boot the .raw image with qemu or VirtManager/libvirt. 
+- Make sure to have TPM and UEFI enabled in libvirt (Gnome Boxes won't work - doesn't support TPM).
 
 
 ### Install / run on baremetal
