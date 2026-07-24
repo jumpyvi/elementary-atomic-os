@@ -47,7 +47,7 @@ RAW="mkosi.output/Elementary_*_x86-64.raw
 SHA="${RAW}.sha256"
 MD5="${RAW}.md5"
 
-sha256sum "$RAW" | tee "$SHA"
+sha256sum Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \ Elementary_*_x86-64.usr-x86-64-verity.*.raw \ Elementary_*_x86-64.usr-x86-64.*.raw \ Elementary_*_x86-64.efi \ > SHA256SUMS
 md5sum "$RAW" | tee "$MD5"
 
 upload_file "$INSTALL_BUCKET" "$RAW" "elementaryos.raw"
