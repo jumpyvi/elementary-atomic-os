@@ -43,7 +43,7 @@ echo -e "
 #-----------------------------------#
 "
 
-RAW="mkosi.output/Elementary_x86-64.raw"
+RAW="mkosi.output/Elementary_*_x86-64.raw
 SHA="${RAW}.sha256"
 MD5="${RAW}.md5"
 
