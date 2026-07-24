@@ -36,6 +36,14 @@ You can directly boot the .raw image with qemu, make sure to have TPM and UEFI e
 
 ### Install / run on baremetal
 
-Before running the resize (step 3) above, copy the main .raw file to a USB stick with 40+ gb with below command or Fedora Media Writer. It will then expand and be bootable.
+Before running the resize (step 3) above, copy the main .raw file to a 40+ GB USB stick with one of the options below. It will then expand and be bootable.
 
-`sudo dd if=mkosi.output/Elementary---.raw of=/dev/sdX bs=4M status=progress`
+`sudo dd if=mkosi.output/Elementary_{X}_x86-64.raw of=/dev/sd{X} bs=4M status=progress`
+
+or
+
+`sudo mkosi burn /dev/sdX`
+
+or 
+
+Fedora Media Writer, etc.
