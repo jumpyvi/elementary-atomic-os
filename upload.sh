@@ -30,12 +30,12 @@ echo -e "
 #---------------------------------#
 "
 
-ALLFILES="$(find mkosi.output -type f)"
+UPDATE_FILES="$(find mkosi.output -type f \( -name '*.efi' -o -name '*.manifest' -o -name '*.usr-*' -o -name 'SHA256SUMS' \))"
 while IFS= read -r FILE; do
   REMOTE="$(basename "$FILE")"
   echo "uploading $REMOTE to $UPDATES_BUCKET..."
   upload_file "$UPDATES_BUCKET" "$FILE" "$REMOTE"
-done <<< "$ALLFILES"
+done <<< "$UPDATE_FILES"
 
 echo -e "
 #-----------------------------------#
