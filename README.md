@@ -34,10 +34,8 @@
 You can directly boot the .raw image with qemu, make sure to have TPM and UEFI enabled
 
 
-### Run on baremetal
+### Install / run on baremetal
+
+Before running the resize (step 3) above, copy the main .raw file to a USB stick with 40+ gb with below command or Fedora Media Writer. It will then expand and be bootable.
 
 `sudo dd if=mkosi.output/Elementary---.raw of=/dev/sdX bs=4M status=progress`
-
-## Further Information
-
-More information about the concepts behind `live-build` and the technical decisions made to arrive at this set of tools to build an .iso can be found [on the wiki](https://github.com/elementary/os/wiki/Building-iso-Images).
