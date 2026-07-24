@@ -1,11 +1,11 @@
-name: Daily OS 9
+name: Monthly Image-based OS 9
 
 on:
   push:
     branches:
       - main
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 1 * *"
   workflow_dispatch: {}
 
 jobs:
@@ -30,6 +30,10 @@ jobs:
     - name: Clone build scripts
       uses: actions/checkout@v7
 
-    - name: Build and upload daily .iso
+    - name: Build
       run: |
-        ./workflows.sh etc/terraform-daily-9.0-azure-${{ matrix.arch }}.conf "${{ secrets.key }}" "${{ secrets.secret }}" "${{ secrets.endpoint }}" "${{ secrets.bucket }}"
+        ./build.sh etc/terraform-daily-9.0-azure-${{ matrix.arch }}.conf
+
+    - name: Upload
+      run: |
+        ./upload.sh etc/terraform-daily-9.0-azure-${{ matrix.arch }}.conf "${{ secrets.key }}" "${{ secrets.secret }}" "${{ secrets.endpoint }}" "${{ secrets.bucket }}"
