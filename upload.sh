@@ -25,9 +25,9 @@ apt-get update
 apt-get install -y python3 python3-boto3
 
 echo -e "
-#------------------#
-# UPLOAD TO UPDATES CDN #
-#------------------#
+#---------------------------------#
+# UPLOAD TO SYSUPDATES CLOUDFLARE #
+#---------------------------------#
 "
 
 ALLFILES="$(find mkosi.output -type f)"
@@ -38,9 +38,9 @@ while IFS= read -r FILE; do
 done <<< "$ALLFILES"
 
 echo -e "
-#------------------#
-# UPLOAD TO INSTALLER ISO CDN #
-#------------------#
+#-----------------------------------#
+# UPLOAD NSTALLER-ISO TO CLOUDFLARE #
+#-----------------------------------#
 "
 
 RAW="mkosi.output/Elementary_x86-64.raw"
