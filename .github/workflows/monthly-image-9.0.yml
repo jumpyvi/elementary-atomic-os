@@ -36,4 +36,4 @@ jobs:
 
     - name: Upload
       run: |
-        ./upload.sh etc/terraform-daily-9.0-azure-${{ matrix.arch }}.conf "${{ secrets.key }}" "${{ secrets.secret }}" "${{ secrets.endpoint }}" "${{ secrets.bucket }}"
+        ./upload.sh "${{ secrets.key }}" "${{ secrets.secret }}" "${{ secrets.endpoint }}" "${{ secrets.bucket }}"
