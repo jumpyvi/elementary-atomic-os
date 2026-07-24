@@ -38,7 +38,7 @@
 
 Copy the main .raw file to a 40+ GB USB stick with one of the options below. It will then expand and be bootable. Note: Don't run this after resizing for qemu or your image will be the wrong shape.
 
-`sudo dd if=mkosi.output/Elementary_20260724221929_x86-64.raw of=/dev/sdX bs=4M status=progress` where X is your usb drive on /dev/sda, etc
+`sudo dd if="$(ls mkosi.output/Elementary_*_x86-64.raw)" of=/dev/sdX bs=4M status=progress conv=fsync` where X is your usb drive on /dev/sda, etc
 
 or
 
