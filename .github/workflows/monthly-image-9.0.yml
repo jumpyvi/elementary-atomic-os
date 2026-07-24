@@ -29,10 +29,11 @@ jobs:
     steps:
     - name: Clone build scripts
       uses: actions/checkout@v7
-    - name: Install mkosi
-      run: sudo apt-get update && sudo apt-get install -y mkosi
+
     - name: Build
-      run: sudo mkosi -B --debug --force --profile=sysupdate
+      run: |
+        ./build.sh etc/terraform-daily-9.0-azure-${{ matrix.arch }}.conf
+
     - name: Upload
       run: |
         ./upload.sh "${{ secrets.key }}" "${{ secrets.secret }}" "${{ secrets.endpoint }}" "${{ secrets.bucket }}" "${{ secrets.install_bucket }}"
