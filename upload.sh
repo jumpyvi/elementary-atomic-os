@@ -39,7 +39,7 @@ done <<< "$ALLFILES"
 
 echo -e "
 #-----------------------------------#
-# UPLOAD NSTALLER-ISO TO CLOUDFLARE #
+# UPLOAD INSTALLER-ISO TO CLOUDFLARE #
 #-----------------------------------#
 "
 
