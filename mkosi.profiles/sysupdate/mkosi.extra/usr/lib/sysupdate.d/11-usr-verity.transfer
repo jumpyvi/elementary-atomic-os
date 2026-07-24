@@ -4,12 +4,12 @@ ProtectVersion=%A
 [Source]
 Type=url-file
 Path=http://10.0.2.2:7676/
-MatchPattern=%M_@v_%a.usr-%a-verity.@u.raw
+MatchPattern=Elementary_@v_%a.usr-%a-verity.@u.raw
 
 [Target]
 Type=partition
 Path=auto
-MatchPattern=%M_@v_verity
+MatchPattern=Elementary_@v_verity
 MatchPartitionType=usr-verity
 PartitionFlags=0
 ReadOnly=1

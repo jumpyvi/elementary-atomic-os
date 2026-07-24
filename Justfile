@@ -7,14 +7,14 @@ default:
 
 lazy-spin:
     just _gen_keys
-    just build-sysupdate && just resize
+    just build-sysupdate
 
 build-sysupdate:
     mkosi build --debug --force --profile=sysupdate && \
     just sign-repo
 
-resize:
-    qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
+# resize:
+#     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
 
 _gen_keys:
     mkosi genkey || true
@@ -25,25 +25,18 @@ clean:
     sudo rm -r mkosi.tools/ mkosi.cache/
 
 start-sysupdate-server:
+    #!/usr/bin/env bash
+    just sign-repo && \
     python -m http.server -d mkosi.output 7676
 
 sign-repo:
     #!/usr/bin/env bash
-    set -euo pipefail
-    export GNUPGHOME="$(mktemp -d)"
-    trap 'rm -rf "$GNUPGHOME"' EXIT
-
-    gpg --batch --generate-key <<EOF
-    %no-protection
-    Key-Type: eddsa
-    Key-Curve: ed25519
-    Key-Usage: sign
-    Name-Real: ephemeral
-    Expire-Date: 0
-    %commit
-    EOF
-
     cd mkosi.output
-    sha256sum Elementary_x86-64.usr-x86-64.* Elementary_x86-64.efi > SHA256SUMS
-    gpg --batch --yes --local-user sysupdate-dev --detach-sign --armor -o SHA256SUMS.gpg SHA256SUMS
-    gpg --export sysupdate-dev > sysupdate-dev.pgp
+    echo "Repo will not be signed, use verify=no."
+    echo "Generating SHA256..."
+    sha256sum Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
+          Elementary_*_x86-64.usr-x86-64-verity.*.raw \
+          Elementary_*_x86-64.usr-x86-64.*.raw \
+          Elementary_*_x86-64.efi \
+          > SHA256SUMS
+    cd ..
