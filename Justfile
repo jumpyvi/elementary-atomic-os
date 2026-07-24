@@ -1,3 +1,5 @@
+alias serve := start-sysupdate-server
+
 default:
     #!/usr/bin/env bash
     set -xeuo pipefail
@@ -5,13 +7,14 @@ default:
 
 lazy-spin:
     just _gen_keys
-    just build-sysupdate && just resize
+    just build-sysupdate
 
 build-sysupdate:
-    mkosi -B --debug --force --profile=sysupdate
+    mkosi -B --debug --force --profile=sysupdate && \
+    just sign-repo
 
-resize:
-    qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
+# resize:
+#     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
 
 _gen_keys:
     mkosi genkey || true
@@ -20,3 +23,20 @@ _gen_keys:
 clean:
     mkosi clean
     sudo rm -r mkosi.tools/ mkosi.cache/
+
+start-sysupdate-server:
+    #!/usr/bin/env bash
+    just sign-repo && \
+    python -m http.server -d mkosi.output 7676
+
+sign-repo:
+    #!/usr/bin/env bash
+    cd mkosi.output
+    echo "Repo will not be signed, use verify=no."
+    echo "Generating SHA256..."
+    sha256sum Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
+          Elementary_*_x86-64.usr-x86-64-verity.*.raw \
+          Elementary_*_x86-64.usr-x86-64.*.raw \
+          Elementary_*_x86-64.efi \
+          > SHA256SUMS
+    cd ..

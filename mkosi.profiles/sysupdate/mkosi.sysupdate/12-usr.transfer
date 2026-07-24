@@ -2,15 +2,14 @@
 ProtectVersion=%A
 
 [Source]
-Type=regular-file
-Path=/
-PathRelativeTo=explicit
-MatchPattern=%M_@v_%a.usr-%a.@u.raw
+Type=url-file
+Path=http://10.0.2.2:7676/
+MatchPattern=Elementary_@v_%a.usr-%a.@u.raw
 
 [Target]
 Type=partition
 Path=auto
-MatchPattern=%M_@v
+MatchPattern=Elementary_@v
 MatchPartitionType=usr
 PartitionFlags=0
 ReadOnly=1
