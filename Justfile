@@ -10,8 +10,12 @@ lazy-spin:
     just build-sysupdate
 
 build-sysupdate:
-    mkosi -B --debug --force --profile=sysupdate && \
-    just sign-repo
+    rm -rf mkosi.output/ && \
+    sudo $(which mkosi) -B --debug --force --profile=sysupdate --workspace-directory=$HOME/.cache/mkosi-workspace && \
+    sudo chown -R $(whoami):$(whoami) ./mkosi.output/
+
+build-sysexts:
+    mkosi --debug --force --image dev
 
 # resize:
 #     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
