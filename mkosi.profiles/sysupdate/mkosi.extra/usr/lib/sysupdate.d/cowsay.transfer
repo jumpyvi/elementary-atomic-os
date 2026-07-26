@@ -1,0 +1,12 @@
+[Transfer]
+Features=cowsay
+
+[Source]
+Type=url-file
+Path=http://10.0.2.2:7676/se/
+MatchPattern=cowsay_@v.raw
+
+[Target]
+Type=regular-file
+Path=/var/lib/extensions
+MatchPattern=cowsay_@v.raw

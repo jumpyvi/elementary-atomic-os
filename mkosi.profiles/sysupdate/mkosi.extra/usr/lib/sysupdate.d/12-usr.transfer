@@ -4,7 +4,7 @@ ProtectVersion=%A
 [Source]
 Type=url-file
 Path=http://10.0.2.2:7676/
-MatchPattern=Elementary_@v_%a.usr-%a.@u.raw
+MatchPattern=Elementary_@v.usr-%a.@u.raw
 
 [Target]
 Type=partition
