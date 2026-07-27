@@ -1,4 +1,4 @@
-name: Build and Release DDI (Elementary OS)
+name: Build and Release DDI (Elementary OS 9)
 
 on:
   workflow_dispatch:
@@ -42,6 +42,14 @@ jobs:
           echo "Generated SHA256SUMS:"
           cat SHA256SUMS
 
+      - name: Extract Date
+        run: |
+          FILE_PATH=$(ls mkosi.output/Elementary_*.raw | head -n 1)
+          FILE_NAME=$(basename "$FILE_PATH")
+          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\.raw$//')
+          echo "RELEASE_TAG=os9-$TIMESTAMP" >> $GITHUB_ENV
+          echo "Generated tag: os9-$TIMESTAMP"
+
       - name: Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
         with:
@@ -50,6 +58,6 @@ jobs:
           files: |
             mkosi.output/*.efi
             mkosi.output/*.usr-*.raw.gz
-            mkosi.output/*.usr-*-verity.raw
-            mkosi.output/*.usr-*-verity-sig.raw
+            mkosi.output/*.usr-*-verity*.raw
+            mkosi.output/*.usr-*-verity-sig*.raw
             mkosi.output/SHA256SUMS
