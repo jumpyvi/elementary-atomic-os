@@ -3,7 +3,7 @@ Features=devel
 
 [Source]
 Type=url-file
-Path=http://10.0.2.2:7676/se/
+Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download/
 MatchPattern=ext-devel_@v.raw
 
 [Target]
