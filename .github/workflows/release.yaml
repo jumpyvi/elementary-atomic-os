@@ -1,0 +1,51 @@
+name: Build and Release DDI (Elementary OS)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    name: Build Image and Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@v8
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mkosi systemd-container gzip coreutils
+
+      - name: Build image with mkosi
+        run: |
+          sudo mkosi -B --debug --force --profile=elementaryos
+
+      - name: Gunzip usr.raw
+        run: |
+          find mkosi.output -type f -name "*.usr-*.raw" ! -name "*verity*" -exec gzip -9 {} +
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd mkosi.output
+          sha256sum *.efi *.usr-*.raw.gz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
+          
+          echo "Generated SHA256SUMS:"
+          cat SHA256SUMS
+
+      - name: Create Release and Upload Artifacts
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: |
+            mkosi.output/*.efi
+            mkosi.output/*.usr-*.raw.gz
+            mkosi.output/*.usr-*-verity.raw
+            mkosi.output/*.usr-*-verity-sig.raw
+            mkosi.output/SHA256SUMS
