@@ -30,14 +30,14 @@ jobs:
       - name: Update permissions
         run: sudo chown -R $USER:$USER mkosi.output
 
-      - name: Gunzip usr.raw
+      - name: Compress (xz7) usr.raw
         run: |
-          find mkosi.output -type f -name "*.usr-*.raw" ! -name "*verity*" -exec gzip -9 {} +
+          find mkosi.output -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
 
       - name: Generate SHA256SUMS
         run: |
           cd mkosi.output
-          sha256sum *.efi *.usr-*.raw.gz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
+          sha256sum *.efi *.usr-*.raw.xz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
           
           echo "Generated SHA256SUMS:"
           cat SHA256SUMS
@@ -59,7 +59,7 @@ jobs:
           name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
             mkosi.output/*.efi
-            mkosi.output/*.usr-*.raw.gz
+            mkosi.output/*.usr-*.raw.xz
             mkosi.output/*.usr-*-verity*.raw
             mkosi.output/*.usr-*-verity-sig*.raw
             mkosi.output/SHA256SUMS

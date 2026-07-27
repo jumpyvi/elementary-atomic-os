@@ -4,7 +4,7 @@ ProtectVersion=%A
 [Source]
 Type=url-file
 Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download
-MatchPattern=Elementary_@v.usr-%a.@u.raw.gz
+MatchPattern=Elementary_@v.usr-%a.@u.raw.xz
 
 [Target]
 Type=partition
