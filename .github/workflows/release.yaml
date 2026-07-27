@@ -43,18 +43,20 @@ jobs:
           cat SHA256SUMS
 
       - name: Extract Date
+        id: get_date
         run: |
           FILE_PATH=$(ls mkosi.output/Elementary_*.raw | head -n 1)
           FILE_NAME=$(basename "$FILE_PATH")
           TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\.raw$//')
-          echo "RELEASE_TAG=os9-$TIMESTAMP" >> $GITHUB_ENV
+          
+          echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
           echo "Generated tag: os9-$TIMESTAMP"
 
       - name: Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
+          name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
             mkosi.output/*.efi
             mkosi.output/*.usr-*.raw.gz
