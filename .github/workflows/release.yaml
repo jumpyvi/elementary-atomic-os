@@ -27,6 +27,9 @@ jobs:
         run: |
           sudo mkosi -B --debug --force --profile=elementaryos
 
+      - name: Update permissions
+        run: sudo chown -R $USER:$USER mkosi.output
+
       - name: Gunzip usr.raw
         run: |
           find mkosi.output -type f -name "*.usr-*.raw" ! -name "*verity*" -exec gzip -9 {} +
