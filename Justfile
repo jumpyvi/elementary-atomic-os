@@ -38,8 +38,7 @@ sign-ext:
     cd mkosi.output/se/
     echo "Sysexts will not be signed, use verify=no."
     echo "Generating SHA256..."
-    sha256sum ext-*.raw
-          > SHA256SUMS
+    sha256sum *.raw > SHA256SUMS
     cd ../../
 
 sign-repo:
