@@ -47,8 +47,8 @@ jobs:
         run: |
           FILE_PATH=$(ls mkosi.output/Elementary_*.raw | head -n 1)
           FILE_NAME=$(basename "$FILE_PATH")
-          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\.raw$//')
-          
+          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\..*//')
+
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
           echo "Generated tag: os9-$TIMESTAMP"
 
