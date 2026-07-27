@@ -5,8 +5,8 @@ set -e
 KEY="$1"
 SECRET="$2"
 ENDPOINT="$3"
-UPDATES_BUCKET="$4"
-INSTALL_BUCKET="$5"
+INSTALLER_BUCKET="$4"
+UPDATES_BUCKET="$5"
 
 upload_file() {
   local bucket="$1"
@@ -57,6 +57,6 @@ sha256sum \
 sha256sum "$RAW" | tee "$SHA"
 md5sum "$RAW" | tee "$MD5"
 
-upload_file "$INSTALL_BUCKET" "$RAW" "elementaryos.raw"
-upload_file "$INSTALL_BUCKET" "$SHA" "elementaryos.raw.sha256"
-upload_file "$INSTALL_BUCKET" "$MD5" "elementaryos.raw.md5"
+upload_file "$INSTALLER_BUCKET" "$RAW" "elementaryos.raw"
+upload_file "$INSTALLER_BUCKET" "$SHA" "elementaryos.raw.sha256"
+upload_file "$INSTALLER_BUCKET" "$MD5" "elementaryos.raw.md5"
