@@ -17,10 +17,11 @@ jobs:
       - name: Maximize build space
         uses: ublue-os/remove-unwanted-software@v8
 
-      - name: Setup build environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mkosi systemd-container gzip coreutils
+      - name: Install mkosi
+        uses: systemd/mkosi@v26
+
+      - name: Generate key
+        run: mkosi genkey
 
       - name: Build image with mkosi
         run: |
