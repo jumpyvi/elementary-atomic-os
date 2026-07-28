@@ -30,6 +30,13 @@ echo -e "
 #---------------------------------#
 "
 
+sha256sum \
+  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
+  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity.*.raw \
+  mkosi.output/Elementary_*_x86-64.usr-x86-64.*.raw \
+  mkosi.output/Elementary_*_x86-64.efi \
+  > mkosi.output/SHA256SUMS
+
 UPDATE_FILES="$(find mkosi.output -type f \( -name '*.efi' -o -name '*.manifest' -o -name '*.usr-*' -o -name 'SHA256SUMS' \))"
 while IFS= read -r FILE; do
   REMOTE="$(basename "$FILE")"
@@ -46,13 +53,6 @@ echo -e "
 RAW="$(ls mkosi.output/Elementary_*_x86-64.raw)"
 SHA="${RAW}.sha256"
 MD5="${RAW}.md5"
-
-sha256sum \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity.*.raw \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64.*.raw \
-  mkosi.output/Elementary_*_x86-64.efi \
-  > SHA256SUMS
 
 sha256sum "$RAW" | tee "$SHA"
 md5sum "$RAW" | tee "$MD5"
