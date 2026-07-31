@@ -1,0 +1,23 @@
+[Transfer]
+ProtectVersion=%A
+
+[Source]
+Type=url-file
+Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download
+MatchPattern=Elementary_@v.efi
+
+[Target]
+Type=regular-file
+Path=/EFI/Linux
+PathRelativeTo=boot
+MatchPattern=Elementary_@v_%a+@l-@d.efi \
+             Elementary_@v_%a+@l.efi \
+             Elementary_@v_%a.efi \
+             Elementary_@v+@l-@d.efi \
+             Elementary_@v+@l.efi \
+             Elementary_@v.efi
+# MatchPartitionType=uki
+Mode=0600
+TriesLeft=3
+TriesDone=0
+InstancesMax=2
