@@ -1,0 +1,15 @@
+[Transfer]
+ProtectVersion=%A
+
+[Source]
+Type=url-file
+Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download
+MatchPattern=Elementary_@v.usr-%a-verity.@u.raw
+
+[Target]
+Type=partition
+Path=auto
+MatchPattern=Elementary_@v_verity
+MatchPartitionType=usr-verity
+PartitionFlags=0
+ReadOnly=1
