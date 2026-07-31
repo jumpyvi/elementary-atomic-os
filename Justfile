@@ -1,45 +1,33 @@
 # resize:
 #     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
 
-alias serve := start-sysupdate-server
-
 default:
     #!/usr/bin/env bash
     set -xeuo pipefail
     just build-sysupdate
 
-lazy-spin:
-    just _gen_keys
-    just build-sysupdate
-
 build-sysupdate:
-    rm -rf mkosi.output/ && \
-    sudo $(which mkosi) -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=$HOME/.cache/mkosi-workspace && \
-    sudo chown -R $(whoami):$(whoami) ./mkosi.output/
+    rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-_gen_keys:
-    mkosi genkey || true
+run-in-podman +command:
+    mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
+    
+    sudo podman run --rm -it \
+        --privileged \
+        --security-opt label=disable \
+        -v /dev:/dev \
+        -v "{{invocation_directory()}}:/work" \
+        -w /work \
+        -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
+        ghcr.io/jumpyvi/mkosi-ubuntu:26 \
+        {{command}}
 
 
 clean:
-    mkosi clean
+    just run-in-podman mkosi clean
     sudo rm -r mkosi.tools/ mkosi.cache/
-
-start-sysupdate-server:
-    #!/usr/bin/env bash
-    mkdir -p mkosi.output/se/ && \
-    just sign-ext && \
-    just sign-repo && \
-    python -m http.server -d mkosi.output 7676
-
-
-sign-ext:
-    #!/usr/bin/env bash
-    cd mkosi.output/se/
-    echo "Sysexts will not be signed, use verify=no."
-    echo "Generating SHA256..."
-    sha256sum *.raw > SHA256SUMS
-    cd ../../
 
 sign-repo:
     #!/usr/bin/env bash
