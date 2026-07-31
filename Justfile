@@ -1,21 +1,33 @@
 # resize:
 #     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
 
-
 default:
     #!/usr/bin/env bash
     set -xeuo pipefail
     just build-sysupdate
 
 build-sysupdate:
-    rm -rf mkosi.output/ && \
-    sudo $(which mkosi) -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=$HOME/.cache/mkosi-workspace && \
-    sudo chown -R $(whoami):$(whoami) ./mkosi.output/
+    rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
+run-in-podman +command:
+    mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
+    
+    sudo podman run --rm -it \
+        --privileged \
+        --security-opt label=disable \
+        -v /dev:/dev \
+        -v "{{invocation_directory()}}:/work" \
+        -w /work \
+        -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
+        ghcr.io/jumpyvi/mkosi-ubuntu:26 \
+        {{command}}
 
 build-iso:
     rm -rf mkosi.output/ && \
-    sudo $(which mkosi) -B --debug --force --profile=liveiso --workspace-directory=$HOME/.cache/mkosi-workspace && \
-    sudo chown -R $(whoami):$(whoami) ./mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=liveiso --workspace-directory=/workspace && \
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
 
 flash:
@@ -26,7 +38,7 @@ flash:
     sudo systemd-repart --copy-from "$raw_img" --definitions=./mkosi.profiles/liveiso/mkosi.extra/etc/repart-config/ --dry-run=no --empty=force "$dest_dev"
 
 clean:
-    mkosi clean
+    just run-in-podman mkosi clean
     sudo rm -r mkosi.tools/ mkosi.cache/
 
 sign-repo:
