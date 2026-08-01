@@ -23,28 +23,17 @@
 
 ---
 
-## Building Locally
+## Building ISO Locally
 
-1. Install `mkosi`, `just`, `fzf`
-2. Generate keys `just _gen_keys`
-3. Build `just build-sysupdate`
-
-### Run with qemu
-
-- Resize with `qemu-img resize "$(ls mkosi.output/Elementary_*_x86-64.raw)" +40G`, and you can then directly boot the .raw image with qemu or VirtManager/libvirt. 
-- Make sure to have TPM and UEFI enabled in libvirt (Gnome Boxes won't work - doesn't support TPM).
+1. Install `podman`
+2. Generate keys `just genkey`
+3. Build `just build-iso`
+4. `qemu-img resize mkosi.output/Elementary....raw 6G`
 
 
-### Install / run on baremetal
+### Install (qemu)
 
-Copy the main .raw file to a 40+ GB USB stick with one of the options below. It will then expand and be bootable. Note: Don't run this after resizing for qemu or your image will be the wrong shape.
-
-`sudo dd if="$(ls mkosi.output/Elementary_*_x86-64.raw)" of=/dev/sdX bs=4M status=progress conv=fsync` where X is your usb drive on /dev/sda, etc
-
-or
-
-`sudo mkosi burn /dev/sdX` where X is your usb drive on /dev/sda, etc
-
-or 
-
-Fedora Media Writer, etc.
+1. Add the iso as a disk
+2. Add a destination disk (Minimum tested is 70gb)
+3. Boot the liveiso
+4. Run `sudo elementary-install`

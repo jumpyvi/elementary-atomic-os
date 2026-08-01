@@ -11,6 +11,9 @@ build-sysupdate:
     just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
+genkey:
+    just run-in-podman mkosi genkey
+
 run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     
