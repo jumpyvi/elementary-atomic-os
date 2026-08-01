@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "Thank you for testing!"
+
+selected_disk=$(lsblk -d -n -p -o NAME,SIZE,MODEL -e 7,11 | fzf \
+  --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
+  --header="NAME          SIZE  MODEL")
+
+
+if [ -z "$selected_disk" ]; then
+  echo "Installation aborted: No disk selected."
+  exit 1
+fi
+
+dest_dev=$(echo "$selected_disk" | awk '{print $1}')
+
+echo "$dest_dev, selected for reparting..."
+echo "Destroying drive in 3s ..."
+sleep 1
+echo "Destroying drive in 2s ..."
+sleep 1
+echo "Destroying drive in 1s ..."
+sleep 2
+
+
+sudo systemd-repart \
+  --definitions=/etc/repart-installer/ \
+  --dry-run=no \
+  --empty=force \
+  "$dest_dev"

@@ -44,3 +44,6 @@ EOF
 
 EOF
 )
+
+mkdir -p /etc/credstore
+touch /etc/credstore/passwd.plaintext-password.liveiso

@@ -1,0 +1,13 @@
+[Unit]
+Description=Remove password for liveiso user
+After=systemd-sysusers.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/passwd -d liveiso
+ExecStart=/usr/bin/mkdir -p /home/liveiso
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
