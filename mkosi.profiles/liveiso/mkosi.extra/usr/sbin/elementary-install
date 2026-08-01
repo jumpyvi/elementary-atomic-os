@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-echo "Thank you for testing!"
+echo "Thank you for testing! <3"
 
 selected_disk=$(lsblk -d -n -p -o NAME,SIZE,MODEL -e 7,11 | fzf \
   --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
@@ -44,7 +44,7 @@ mount -o umask=0077 "$target_esp" /mnt/esp
 
 bootctl install --esp-path=/mnt/esp --no-variables
 
-cp /boot/EFI/Linux/Elementary_*.efi /mnt/esp/EFI/Linux/
+cp /usr/lib/elementary-install/*.efi /mnt/esp/EFI/Linux/
 
 cat > /mnt/esp/loader/loader.conf <<'EOF'
 timeout 6
@@ -56,7 +56,6 @@ umount /mnt/esp
 target_root=$(lsblk -n -o PATH,PARTLABEL "$dest_dev" | awk '$2=="Elementary-root" {print $1}')
 
 if [ -n "$target_root" ]; then
-  echo "Mounting target root ($target_root) for liveiso cleanup..."
   mkdir -p /mnt/root
   mount "$target_root" /mnt/root
 

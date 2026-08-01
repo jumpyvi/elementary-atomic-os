@@ -24,7 +24,7 @@ run-in-podman +command:
         -v "{{invocation_directory()}}:/work" \
         -w /work \
         -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
-        ghcr.io/jumpyvi/mkosi-ubuntu:26 \
+        ghcr.io/jumpyvi/mkosi-debian:26 \
         {{command}}
 
 build-iso:
