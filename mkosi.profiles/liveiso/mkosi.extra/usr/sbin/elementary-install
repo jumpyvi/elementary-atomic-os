@@ -1,0 +1,76 @@
+#!/bin/bash
+set -eo pipefail
+
+echo "Thank you for testing! <3"
+
+selected_disk=$(lsblk -d -n -p -o NAME,SIZE,MODEL -e 7,11 | fzf \
+  --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
+  --header="NAME          SIZE  MODEL")
+
+if [ -z "$selected_disk" ]; then
+  echo "Installation aborted: No disk selected."
+  exit 1
+fi
+
+dest_dev=$(echo "$selected_disk" | awk '{print $1}')
+
+echo "$dest_dev selected for repartitioning..."
+echo "Destroying drive in 3s ..."
+sleep 1
+echo "Destroying drive in 2s ..."
+sleep 1
+echo "Destroying drive in 1s ..."
+sleep 1
+
+systemd-repart \
+  --definitions=/etc/repart-installer/ \
+  --dry-run=no \
+  --empty=force \
+  "$dest_dev"
+
+echo "Installing bootloader ..."
+
+sleep 1
+
+udevadm settle
+
+sleep 1
+
+mkdir -p /mnt/esp
+
+target_esp=$(lsblk -n -o PATH,PARTLABEL "$dest_dev" | awk '$2=="esp" {print $1}')
+
+mount -o umask=0077 "$target_esp" /mnt/esp
+
+bootctl install --esp-path=/mnt/esp --no-variables
+
+cp /usr/lib/elementary-install/*.efi /mnt/esp/EFI/Linux/
+
+cat > /mnt/esp/loader/loader.conf <<'EOF'
+timeout 6
+EOF
+
+umount /mnt/esp
+
+
+target_root=$(lsblk -n -o PATH,PARTLABEL "$dest_dev" | awk '$2=="Elementary-root" {print $1}')
+
+if [ -n "$target_root" ]; then
+  mkdir -p /mnt/root
+  mount "$target_root" /mnt/root
+
+  rm -f /mnt/root/etc/lightdm/lightdm.conf.d/12-liveiso.conf
+  rm -f /mnt/root/etc/sudoers.d/liveiso
+
+  if chroot /mnt/root id liveiso &>/dev/null; then
+    chroot /mnt/root userdel -f liveiso
+  fi
+
+  umount /mnt/root
+else
+  echo "Fatal Error, could not cleanup"
+  exit 1
+fi
+
+
+echo "Install done, reboot now"

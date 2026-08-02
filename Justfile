@@ -11,6 +11,9 @@ build-sysupdate:
     just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
+genkey:
+    just run-in-podman mkosi genkey
+
 run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     
@@ -21,7 +24,7 @@ run-in-podman +command:
         -v "{{invocation_directory()}}:/work" \
         -w /work \
         -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
-        ghcr.io/jumpyvi/mkosi-ubuntu:26 \
+        ghcr.io/jumpyvi/mkosi-debian:26 \
         {{command}}
 
 build-iso:

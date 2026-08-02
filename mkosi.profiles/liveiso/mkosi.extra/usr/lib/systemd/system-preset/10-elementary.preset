@@ -1,4 +1,5 @@
 enable systemd-resolved
+enable liveiso-reset.service
 enable flatpak-preinstalld.service
 enable NetworkManager.service
 enable NetworkManager-wait-online.service

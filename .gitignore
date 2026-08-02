@@ -17,3 +17,4 @@ mkosi.crt
 mkosi.version
 mkosi.rootpw
 .mkosi-private
+*.efi
