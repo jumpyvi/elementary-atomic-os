@@ -6,6 +6,7 @@ output
 _build-*/**
 *.img
 *.raw
+*.iso
 mkosi.local/
 mkosi.local.conf
 mkosi.output/

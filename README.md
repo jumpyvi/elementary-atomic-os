@@ -23,12 +23,17 @@
 
 ---
 
-## Building ISO Locally
+## Building bootable media
+
+> ⚠️ The live bootable media is NOT compatible with the CDROM driver from qemu, use virtio or SATA. If you keep the .iso.raw extension (default), Gnome Boxes will auto-detect it correctly ⚠️
 
 1. Install `podman`
 2. Generate keys `just genkey`
-3. Build `just build-iso`
-4. `qemu-img resize mkosi.output/Elementary....raw 6G`
+3. Build `just build-bootablemedia`
+4. Either:
+   1. Flash with Fedora Media Writer or Impression
+   2. Boot the Elementary_*.iso.raw with Gnome Boxes </br>
+
 
 
 ### Install (qemu)

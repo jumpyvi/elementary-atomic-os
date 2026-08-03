@@ -27,18 +27,10 @@ run-in-podman +command:
         ghcr.io/jumpyvi/mkosi-debian:26 \
         {{command}}
 
-build-iso:
-    rm -rf mkosi.output/ && \
-    just run-in-podman mkosi -B --debug --force --profile=liveiso --workspace-directory=/workspace && \
-    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+build-bootablemedia:
+    sudo rm -rf mkosi.output/ && \
+    sudo ./build-bmedia.sh
 
-
-flash:
-    #!/bin/bash
-    read -p "Enter .raw image path: " raw_img
-    read -p "Enter destination (/dev/sdX): " dest_dev
-
-    sudo systemd-repart --copy-from "$raw_img" --definitions=./mkosi.profiles/liveiso/mkosi.extra/etc/repart-config/ --dry-run=no --empty=force "$dest_dev"
 
 clean:
     just run-in-podman mkosi clean
