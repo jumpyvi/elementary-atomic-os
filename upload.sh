@@ -24,8 +24,20 @@ echo -e "
 apt-get update
 apt-get install -y python3 python3-boto3
 
-echo -e "
+# echo -e "
+# #---------------------------------#
+# # UPLOAD TO SYSUPDATES CLOUDFLARE #
+# #---------------------------------#
+# "
 
+# UPDATE_FILES="$(find mkosi.output -type f \( -name '*.efi' -o -name '*.manifest' -o -name '*.usr-*' -o -name 'SHA256SUMS' \))"
+# while IFS= read -r FILE; do
+#   REMOTE="$(basename "$FILE")"
+#   echo "uploading $REMOTE to $UPDATES_BUCKET..."
+#   upload_file "$UPDATES_BUCKET" "$FILE" "$REMOTE"
+# done <<< "$UPDATE_FILES"
+
+echo -e "
 #-----------------------------------#
 # UPLOAD INSTALLER-ISO TO CLOUDFLARE #
 #-----------------------------------#
