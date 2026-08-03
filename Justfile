@@ -18,6 +18,7 @@ run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     
     sudo podman run --rm -it \
+        --cgroup-manager=cgroupfs
         --privileged \
         --security-opt label=disable \
         -v /dev:/dev \
