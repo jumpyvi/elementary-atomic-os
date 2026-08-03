@@ -6,6 +6,9 @@ echo "Building sysupdate profile to extract UKI..."
 
 rm -f ./mkosi.profiles/liveiso/mkosi.extra/usr/lib/elementary-install/Elementary_*.efi
 
+apt-get update
+apt-get install -y just podman 
+
 just run-in-podman mkosi -B --debug --force --profile=sysupdate
 
 SYSUPDATE_UKI=$(ls mkosi.output/*.efi | head -n 1)
