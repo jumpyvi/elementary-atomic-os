@@ -28,7 +28,6 @@ run-in-podman +command:
         {{command}}
 
 build-bootablemedia:
-    sudo rm -rf mkosi.output/ && \
     sudo ./build-bmedia.sh
 
 
