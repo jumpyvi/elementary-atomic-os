@@ -7,9 +7,20 @@ default:
     just build-sysupdate
 
 build-sysupdate:
-    rm -rf mkosi.output/
-    just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
+    sudo rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
+build-flash:
+    sudo rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
+build-vm:
+    sudo rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --profile=vm --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
 
 genkey:
     just run-in-podman mkosi genkey
@@ -20,6 +31,7 @@ run-in-podman +command:
     sudo podman run --rm -it \
         --privileged \
         --security-opt label=disable \
+        -v /var/cache/mkosi:/var/cache/mkosi \
         -v /dev:/dev \
         -v "{{invocation_directory()}}:/work" \
         -w /work \
@@ -27,9 +39,6 @@ run-in-podman +command:
         ghcr.io/jumpyvi/mkosi-debian:26 \
         {{command}}
 
-build-bootablemedia:
-    sudo rm -rf mkosi.output/ && \
-    sudo ./build-bmedia.sh
 
 
 clean:
