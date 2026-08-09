@@ -32,20 +32,19 @@ jobs:
 
       - name: Compress (xz7) usr.raw
         run: |
-          find mkosi.output -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
 
       - name: Generate SHA256SUMS
         run: |
-          cd mkosi.output
+          cd mkosi.output/sysupdate
           sha256sum *.efi *.usr-*.raw.xz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
-          
           echo "Generated SHA256SUMS:"
           cat SHA256SUMS
 
       - name: Extract Date
         id: get_date
         run: |
-          FILE_PATH=$(ls mkosi.output/Elementary_*.raw | head -n 1)
+          FILE_PATH=$(ls mkosi.output/sysupdate/Elementary_*.raw | grep -E 'Elementary_[0-9]+\.raw$' | head -n 1)
           FILE_NAME=$(basename "$FILE_PATH")
           TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\..*//')
 
@@ -58,8 +57,8 @@ jobs:
           tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
           name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
-            mkosi.output/*.efi
-            mkosi.output/*.usr-*.raw.xz
-            mkosi.output/*.usr-*-verity*.raw
-            mkosi.output/*.usr-*-verity-sig*.raw
-            mkosi.output/SHA256SUMS
+            mkosi.output/sysupdate/*.efi
+            mkosi.output/sysupdate/*.usr-*.raw.xz
+            mkosi.output/sysupdate/*.usr-*-verity*.raw
+            mkosi.output/sysupdate/*.usr-*-verity-sig*.raw
+            mkosi.output/sysupdate/SHA256SUMS
