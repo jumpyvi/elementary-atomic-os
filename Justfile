@@ -6,20 +6,21 @@ default:
     set -xeuo pipefail
     just build-sysupdate
 
-build-sysupdate:
-    sudo rm -rf mkosi.output/
+profile-sysupdate:
+    sudo rm -rf mkosi.output/sysupdate
     just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-build-flash:
-    sudo rm -rf mkosi.output/
+profile-flash:
+    sudo rm -rf mkosi.output/live
     just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-build-vm:
-    sudo rm -rf mkosi.output/
-    just run-in-podman mkosi -B --debug --force --profile=vm --workspace-directory=/workspace
-    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+generate-liveiso:
+    #!/usr/bin/env bash
+    just profile-sysupdate
+    just profile-flash
+    ./assemble-iso.sh
 
 
 genkey:

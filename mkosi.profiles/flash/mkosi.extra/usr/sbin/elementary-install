@@ -3,13 +3,25 @@ set -eo pipefail
 
 echo "Thank you for testing! <3"
 
+medium=$(findmnt -rn -t iso9660,udf -o TARGET | head -1)
+extra="$medium/extra"
+raw_xz_src=$(find "$extra" -maxdepth 1 -type f -name '*.raw.xz' | head -n1)
+repart_src="/opt/repart-target/"
+
+if [ -z "$raw_xz_src" ]; then
+    echo "Installation aborted: No .raw.xz file found."
+    exit 1
+fi
+
+echo "Using source image: $raw_xz_src"
+
 selected_disk=$(lsblk -d -n -p -o NAME,SIZE,MODEL -e 7,11 | fzf \
-  --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
-  --header="NAME          SIZE  MODEL")
+    --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
+    --header="NAME          SIZE  MODEL")
 
 if [ -z "$selected_disk" ]; then
-  echo "Installation aborted: No disk selected."
-  exit 1
+    echo "Installation aborted: No disk selected."
+    exit 1
 fi
 
 dest_dev=$(echo "$selected_disk" | awk '{print $1}')
@@ -22,55 +34,48 @@ sleep 1
 echo "Destroying drive in 1s ..."
 sleep 1
 
+/usr/sbin/wipefs -a "$dest_dev"
+
+echo "Creating root partition..."
 systemd-repart \
-  --definitions=/etc/repart-installer/ \
-  --dry-run=no \
-  --empty=force \
-  "$dest_dev"
+    --definitions="$repart_src/root" \
+    --dry-run=no \
+    --empty=force \
+    "$dest_dev"
 
-echo "Installing bootloader ..."
-
-sleep 1
-
+partprobe "$dest_dev"
 udevadm settle
 
-sleep 1
+root_part=$(lsblk -n -o PATH -l "$dest_dev" | grep -v "^${dest_dev}$" | head -n1)
 
-mkdir -p /mnt/esp
-
-target_esp=$(lsblk -n -o PATH,PARTLABEL "$dest_dev" | awk '$2=="esp" {print $1}')
-
-mount -o umask=0077 "$target_esp" /mnt/esp
-
-bootctl install --esp-path=/mnt/esp --no-variables
-
-cp /usr/lib/elementary-install/*.efi /mnt/esp/EFI/Linux/
-
-cat > /mnt/esp/loader/loader.conf <<'EOF'
-timeout 6
-EOF
-
-umount /mnt/esp
-
-
-target_root=$(lsblk -n -o PATH,PARTLABEL "$dest_dev" | awk '$2=="Elementary-root" {print $1}')
-
-if [ -n "$target_root" ]; then
-  mkdir -p /mnt/root
-  mount "$target_root" /mnt/root
-
-  rm -f /mnt/root/etc/lightdm/lightdm.conf.d/12-liveiso.conf
-  rm -f /mnt/root/etc/sudoers.d/liveiso
-
-  if chroot /mnt/root id liveiso &>/dev/null; then
-    chroot /mnt/root userdel -f liveiso
-  fi
-
-  umount /mnt/root
-else
-  echo "Fatal Error, could not cleanup"
-  exit 1
+if [ -z "$root_part" ]; then
+    echo "Error: No root-scratch parition, aborting."
+    exit 1
 fi
 
+root_mount=/mnt/future-root
+mkdir -p "$root_mount"
 
-echo "Install done, reboot now"
+echo "Mounting $root_part to $root_mount as a scratch buffer..."
+if ! mount "$root_part" "$root_mount"; then
+    echo "Could not mount, aborting."
+    exit 1
+fi
+
+raw_src="$root_mount/source.raw"
+echo "Decompressing image into the scratch buffer..."
+xz -dk -T0 -c "$raw_xz_src" > "$raw_src"
+
+echo "Configuring partitions..."
+systemd-repart \
+    --copy-from="$raw_src" \
+    --definitions="$repart_src/home" \
+    --dry-run=no \
+    "$dest_dev"
+
+echo "Cleaning up scratch buffer..."
+rm "$raw_src"
+umount "$root_mount"
+rmdir "$root_mount"
+
+echo "Everything is done! Enjoy your stay."
