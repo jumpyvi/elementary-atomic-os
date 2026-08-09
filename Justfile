@@ -6,10 +6,22 @@ default:
     set -xeuo pipefail
     just build-sysupdate
 
-build-sysupdate:
-    rm -rf mkosi.output/
-    just run-in-podman mkosi -B --debug --force --profile=elementaryos --profile=sysexts --workspace-directory=/workspace
+profile-sysupdate:
+    sudo rm -rf mkosi.output/sysupdate
+    just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
+profile-flash:
+    sudo rm -rf mkosi.output/live
+    just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
+generate-liveiso:
+    #!/usr/bin/env bash
+    just profile-sysupdate
+    just profile-flash
+    ./assemble-iso.sh
+
 
 genkey:
     just run-in-podman mkosi genkey
@@ -20,6 +32,7 @@ run-in-podman +command:
     sudo podman run --rm -it \
         --privileged \
         --security-opt label=disable \
+        -v /var/cache/mkosi:/var/cache/mkosi \
         -v /dev:/dev \
         -v "{{invocation_directory()}}:/work" \
         -w /work \
@@ -27,9 +40,6 @@ run-in-podman +command:
         ghcr.io/jumpyvi/mkosi-debian:26 \
         {{command}}
 
-build-bootablemedia:
-    sudo rm -rf mkosi.output/ && \
-    sudo ./build-bmedia.sh
 
 
 clean:
