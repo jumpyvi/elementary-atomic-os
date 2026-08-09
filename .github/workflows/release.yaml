@@ -25,7 +25,7 @@ jobs:
 
       - name: Build image with mkosi
         run: |
-          sudo mkosi -B --debug --force --profile=elementaryos
+          sudo mkosi -B --debug --force --profile=sysupdate
 
       - name: Update permissions
         run: sudo chown -R $USER:$USER mkosi.output
