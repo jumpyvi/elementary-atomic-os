@@ -23,22 +23,29 @@
 
 ---
 
-## Building bootable media
-
-> ⚠️ The live bootable media is NOT compatible with the CDROM driver from qemu, use virtio or SATA. If you keep the .iso.raw extension (default), Gnome Boxes will auto-detect it correctly ⚠️
+## Bootable media
 
 1. Install `podman`
 2. Generate keys `just genkey`
-3. Build `just build-bootablemedia`
+3. Build `just generate-liveiso`
 4. Either:
-   1. Flash with Fedora Media Writer or Impression
-   2. Boot the Elementary_*.iso.raw with Gnome Boxes </br>
+   1. Flash with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression)
+   2. Boot `elementary-liveiso.iso` with Gnome Boxes (>=51) </br>
+5. Inside the liveiso, run `run0 elementary-install`
+6. It should take arround a minute, then reboot
+7. After boot, flatpak should start installing, it might take a while
 
 
+## Operations
 
-### Install (qemu)
+### Upgrades
 
-1. Add the iso as a disk
-2. Add a destination disk (Minimum tested is 70gb)
-3. Boot the liveiso
-4. Run `sudo elementary-install`
+`run0 sysupdate update --verify=no`
+
+Append the exact version ID at the end to upgrade to a specific version, or downgrade.
+
+## Minimum specs
+- UEFI
+- ~8gb usb stick
+- Gnome Boxes >=51 (for VM only)
+- 70gb destination disk, 4gb ram (less should be possible, but not tested)
