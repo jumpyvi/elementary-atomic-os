@@ -2,7 +2,19 @@
 set -euo pipefail
 cd mkosi.output/live/
 
-RAW_IMAGE=$(find ../sysupdate -maxdepth 1 -type f \
+SEARCH_DIR=../sysupdate
+
+SEARCH_DIR=../sysupdate
+OUT_ISO="./elementary-liveiso.iso"
+
+for arg in "$@"; do
+    if [ "$arg" = "--classic" ]; then
+        SEARCH_DIR=../classic
+        OUT_ISO="./elementary-liveiso_classic.iso"
+    fi
+done
+
+RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
     | grep -E '/[^/]+_[0-9]{14}\.raw$' \
     | head -n1)
 
@@ -43,6 +55,8 @@ EOF
 
 echo "Shoving everything in casper..."
 sudo podman run --rm -it \
+  --network host \
+  --dns 8.8.8.8 \
   -v "$(pwd)":/workspace \
   -w /workspace \
   alpine:latest \
@@ -65,7 +79,6 @@ sudo podman run --rm -it \
 
 echo "Generating installer..."
 BASE_ISO="./live/custom_ubuntu_live.iso"
-OUT_ISO="./elementary-liveiso.iso"
 rm -f "../$OUT_ISO"
 
 cp "$XZ_IMAGE" .

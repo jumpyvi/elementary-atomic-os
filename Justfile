@@ -11,6 +11,11 @@ profile-sysupdate:
     just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
+profile-classic:
+    sudo rm -rf mkosi.output/classic
+    just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
+    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
+
 profile-flash:
     sudo rm -rf mkosi.output/live
     just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
@@ -18,9 +23,15 @@ profile-flash:
 
 generate-liveiso:
     #!/usr/bin/env bash
-    just profile-sysupdate
-    just profile-flash
+    just profile-sysupdate && \
+    just profile-flash && \
     ./assemble-iso.sh
+
+generate-liveiso-classic:
+    #!/usr/bin/env bash
+    just profile-classic && \
+    just profile-flash && \
+    ./assemble-iso.sh --classic
 
 
 genkey:
@@ -30,6 +41,8 @@ run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     
     sudo podman run --rm -it \
+        --network host \
+        --dns 8.8.8.8 \
         --privileged \
         --security-opt label=disable \
         -v /var/cache/mkosi:/var/cache/mkosi \
