@@ -1,37 +1,23 @@
-# resize:
-#     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
-
 default:
     #!/usr/bin/env bash
     set -xeuo pipefail
-    just build-sysupdate
+    just --choose
 
 profile-sysupdate:
     sudo rm -rf mkosi.output/sysupdate
     just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-profile-classic:
+build-classic-liveenv:
     sudo rm -rf mkosi.output/classic
     just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-profile-flash:
-    sudo rm -rf mkosi.output/live
-    just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
-    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
-
 generate-liveiso:
     #!/usr/bin/env bash
-    just profile-sysupdate && \
-    just profile-flash && \
+    # just profile-sysupdate && \
+    just build-classic-liveenv && \
     ./assemble-iso.sh
-
-generate-liveiso-classic:
-    #!/usr/bin/env bash
-    just profile-classic && \
-    just profile-flash && \
-    ./assemble-iso.sh --classic
 
 
 genkey:

@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd mkosi.output/live/
+cd mkosi.output/classic/
 
 SEARCH_DIR=../sysupdate
 
 SEARCH_DIR=../sysupdate
 OUT_ISO="./elementary-liveiso.iso"
-
-for arg in "$@"; do
-    if [ "$arg" = "--classic" ]; then
-        SEARCH_DIR=../classic
-        OUT_ISO="./elementary-liveiso_classic.iso"
-    fi
-done
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
     | grep -E '/[^/]+_[0-9]{14}\.raw$' \
@@ -25,13 +18,13 @@ fi
 
 XZ_IMAGE="${RAW_IMAGE}.xz"
 echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
-xz -7 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
+# xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
 
 # Detect version
-output_dir=$(ls -d ElementaryLive_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
+output_dir=$(ls -d elementaryclassic_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
 
 if [[ -z "$output_dir" ]]; then
-    echo "error: No mkosi.output, run just build-flash first." >&2
+    echo "error: No mkosi.output, run just build-classic first." >&2
     exit 1
 fi
 
@@ -42,22 +35,35 @@ rm -rf iso_root
 mkdir -p iso_root/casper
 mkdir -p iso_root/boot/grub
 
-# Write the GRUB configuration for Casper
-cat << 'EOF' > iso_root/boot/grub/grub.cfg
-set timeout=0
-set default=0
+cp "${base_name}/casper/filesystem.manifest-remove" iso_root/casper/
+cp "${base_name}/casper/live-grub/grub.cfg" iso_root/boot/grub/grub.cfg
+rm -rf "${base_name}/casper/"
 
-menuentry "ElementaryOS9 Live (pre-alpha)" {
-    linux /casper/vmlinuz boot=casper quiet splash ---
-    initrd /casper/initrd
-}
+echo "Writing minimal APT disc structure for apt-cdrom..."
+mkdir -p iso_root/.disk
+echo "Elementary Live amd64" > iso_root/.disk/info
+
+mkdir -p iso_root/dists/stable/main/binary-amd64
+touch iso_root/dists/stable/main/binary-amd64/Packages
+gzip -kf iso_root/dists/stable/main/binary-amd64/Packages
+
+mkdir -p iso_root/pool
+cat << 'EOF' > iso_root/dists/stable/Release
+Origin: ElementaryLive
+Label: ElementaryLive
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Minimal disc index for apt-cdrom compatibility
 EOF
+
 
 echo "Shoving everything in casper..."
 sudo podman run --rm -it \
   --network host \
   --dns 8.8.8.8 \
-  -v "$(pwd)":/workspace \
+  -v "$(pwd)":/workspace:Z \
   -w /workspace \
   alpine:latest \
   sh -c "set -e && \
@@ -78,25 +84,26 @@ sudo podman run --rm -it \
 
 
 echo "Generating installer..."
-BASE_ISO="./live/custom_ubuntu_live.iso"
+BASE_ISO="./classic/custom_ubuntu_live.iso"
 rm -f "../$OUT_ISO"
 
 cp "$XZ_IMAGE" .
-LOCAL_RAW_IMAGE="./live/$(basename "$XZ_IMAGE")"
+LOCAL_RAW_IMAGE="./classic/$(basename "$XZ_IMAGE")"
 
-podman run --rm \
-  -v "../:/work:Z" \
-  -w /work \
-  docker.io/alpine:latest \
-  sh -c '
-    apk add --no-cache xorriso && \
-    xorriso -indev "'"$BASE_ISO"'" \
-      -outdev "'"$OUT_ISO"'" \
-      -boot_image any keep \
-      -map "'"$LOCAL_RAW_IMAGE"'" /extra/"$(basename "'"$LOCAL_RAW_IMAGE"'")" \
-      -commit
-  '
+# podman run --rm \
+#     --security-opt label=disable \
+#     -v "../:/work" \
+#     -w /work \
+#     docker.io/alpine:latest \
+#     sh -c '
+#         apk add --no-cache xorriso && \
+#         xorriso -indev "'"$BASE_ISO"'" \
+#         -outdev "'"$OUT_ISO"'" \
+#         -boot_image any keep \
+#         -map "'"$LOCAL_RAW_IMAGE"'" /extra/"$(basename "'"$LOCAL_RAW_IMAGE"'")" \
+#         -commit
+#   '
 
 rm -f "$(basename "$XZ_IMAGE")"
 
-echo "Success! Your live ISO is at: mkosi.output/elementary-liveiso.iso"
+echo "Success! Your live ISO is at: mkosi.output/$OUT_ISO"
