@@ -23,18 +23,25 @@
 
 ---
 
-## Bootable media
+## Building, Testing, and Installation
 
-1. Install `podman`
-2. Generate keys `just genkey`
-3. Build `just generate-liveiso`
-4. Either:
-   1. Flash with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression)
-   2. Boot `elementary-liveiso.iso` with Gnome Boxes (>=51) </br>
-5. Inside the liveiso, run `run0 elementary-install`
-6. It should take arround a minute, then reboot
-7. After boot, flatpak should start installing, it might take a while
+You'll need the following dependencies:
+* podman
+* just
 
+Generate keys and then build with `just`
+
+```bash
+just genkey
+just generate-liveiso
+```
+Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression). Or boot with Gnome Boxes (>=51). Then, in demo mode, install via script:
+
+```bash
+run0 elementary-install
+```
+
+It should take arround a minute, then reboot. After boot, Flatpak should start installing, it might take a while.
 
 ## Operations
 
