@@ -29,6 +29,11 @@ You'll need the following dependencies:
 * podman
 * just
 
+Create the cache directory
+```
+sudo mkdir /var/cache/mkosi
+```
+
 Generate keys and then build with `just`
 
 ```bash
