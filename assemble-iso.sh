@@ -4,20 +4,19 @@ cd mkosi.output/classic/
 
 SEARCH_DIR=../sysupdate
 
-SEARCH_DIR=../sysupdate
 OUT_ISO="./elementary-liveiso.iso"
 
-RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
-    | grep -E '/[^/]+_[0-9]{14}\.raw$' \
-    | head -n1)
+# RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
+#     | grep -E '/[^/]+_[0-9]{14}\.raw$' \
+#     | head -n1)
 
-if [[ -z "$RAW_IMAGE" ]]; then
-    echo "error: No .raw image found matching the pattern." >&2
-    exit 1
-fi
+# if [[ -z "$RAW_IMAGE" ]]; then
+#     echo "error: No .raw image found matching the pattern." >&2
+#     exit 1
+# fi
 
-XZ_IMAGE="${RAW_IMAGE}.xz"
-echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
+# XZ_IMAGE="${RAW_IMAGE}.xz"
+# echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
 # xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
 
 # Detect version
@@ -32,31 +31,15 @@ base_name=$(basename "$output_dir")
 echo "Detected release target: $base_name"
 
 rm -rf iso_root
-mkdir -p iso_root/casper
-mkdir -p iso_root/boot/grub
 
-cp "${base_name}/casper/filesystem.manifest-remove" iso_root/casper/
-cp "${base_name}/casper/live-grub/grub.cfg" iso_root/boot/grub/grub.cfg
-rm -rf "${base_name}/casper/"
+rsync -a --delete "${base_name}/iso_root/" iso_root/
 
 echo "Writing minimal APT disc structure for apt-cdrom..."
-mkdir -p iso_root/.disk
-echo "Elementary Live amd64" > iso_root/.disk/info
 
 mkdir -p iso_root/dists/stable/main/binary-amd64
 touch iso_root/dists/stable/main/binary-amd64/Packages
 gzip -kf iso_root/dists/stable/main/binary-amd64/Packages
-
 mkdir -p iso_root/pool
-cat << 'EOF' > iso_root/dists/stable/Release
-Origin: ElementaryLive
-Label: ElementaryLive
-Suite: stable
-Codename: stable
-Architectures: amd64
-Components: main
-Description: Minimal disc index for apt-cdrom compatibility
-EOF
 
 
 echo "Shoving everything in casper..."
@@ -65,21 +48,18 @@ sudo podman run --rm -it \
   --dns 8.8.8.8 \
   -v "$(pwd)":/workspace:Z \
   -w /workspace \
-  alpine:latest \
-  sh -c "set -e && \
-           apk update && \
-           apk add --no-cache squashfs-tools grub grub-efi mtools xorriso && \
+  ghcr.io/jumpyvi/xorriso:tanit \
+  sh -c "set -e
+           KERNEL_VERSION=\$(ls ${base_name}/lib/modules | head -n 1)
+           chroot ${base_name} update-initramfs -u -k \${KERNEL_VERSION}
            
-           KERNEL_VERSION=\$(ls ${base_name}/lib/modules | head -n 1) && \
-           chroot ${base_name} update-initramfs -u -k \${KERNEL_VERSION} && \
+           cp ${base_name}/boot/vmlinuz-\${KERNEL_VERSION} iso_root/casper/vmlinuz
+           cp ${base_name}/boot/initrd.img-\${KERNEL_VERSION} iso_root/casper/initrd
            
-           cp ${base_name}/boot/vmlinuz-\${KERNEL_VERSION} iso_root/casper/vmlinuz && \
-           cp ${base_name}/boot/initrd.img-\${KERNEL_VERSION} iso_root/casper/initrd && \
+           rm -f iso_root/casper/filesystem.squashfs
+           mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp xz
            
-           rm -f iso_root/casper/filesystem.squashfs && \
-           mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp xz && \
-           
-           grub-mkrescue -o custom_ubuntu_live.iso iso_root/ && \
+           grub-mkrescue -o custom_ubuntu_live.iso iso_root/
            echo 'Live environment generated!'"
 
 
@@ -94,7 +74,7 @@ LOCAL_RAW_IMAGE="./classic/$(basename "$XZ_IMAGE")"
 #     --security-opt label=disable \
 #     -v "../:/work" \
 #     -w /work \
-#     docker.io/alpine:latest \
+#     ghcr.io/jumpyvi/xorriso:tanit \
 #     sh -c '
 #         apk add --no-cache xorriso && \
 #         xorriso -indev "'"$BASE_ISO"'" \

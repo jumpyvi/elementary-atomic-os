@@ -36,14 +36,14 @@ run-in-podman +command:
         -v "{{invocation_directory()}}:/work" \
         -w /work \
         -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
-        ghcr.io/jumpyvi/mkosi-debian:26 \
+        ghcr.io/jumpyvi/mkosi:tanit \
         {{command}}
 
 
 
 clean:
     just run-in-podman mkosi clean
-    sudo rm -r mkosi.tools/ mkosi.cache/
+    sudo rm -r mkosi.tools/ mkosi.cache/ /var/cache/mkosi/*
 
 sign-repo:
     #!/usr/bin/env bash
