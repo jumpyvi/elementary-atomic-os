@@ -15,7 +15,7 @@ build-classic-liveenv:
 
 generate-liveiso:
     #!/usr/bin/env bash
-    # just profile-sysupdate && \
+    just profile-sysupdate && \
     just build-classic-liveenv && \
     ./assemble-iso.sh
 

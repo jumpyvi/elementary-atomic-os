@@ -6,18 +6,18 @@ SEARCH_DIR=../sysupdate
 
 OUT_ISO="./elementary-liveiso.iso"
 
-# RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
-#     | grep -E '/[^/]+_[0-9]{14}\.raw$' \
-#     | head -n1)
+RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
+    | grep -E '/[^/]+_[0-9]{14}\.raw$' \
+    | head -n1)
 
-# if [[ -z "$RAW_IMAGE" ]]; then
-#     echo "error: No .raw image found matching the pattern." >&2
-#     exit 1
-# fi
+if [[ -z "$RAW_IMAGE" ]]; then
+    echo "error: No .raw image found matching the pattern." >&2
+    exit 1
+fi
 
-# XZ_IMAGE="${RAW_IMAGE}.xz"
-# echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
-# xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
+XZ_IMAGE="${RAW_IMAGE}.xz"
+echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
+xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
 
 # Detect version
 output_dir=$(ls -d elementaryclassic_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
@@ -70,19 +70,19 @@ rm -f "../$OUT_ISO"
 cp "$XZ_IMAGE" .
 LOCAL_RAW_IMAGE="./classic/$(basename "$XZ_IMAGE")"
 
-# podman run --rm \
-#     --security-opt label=disable \
-#     -v "../:/work" \
-#     -w /work \
-#     ghcr.io/jumpyvi/xorriso:tanit \
-#     sh -c '
-#         apk add --no-cache xorriso && \
-#         xorriso -indev "'"$BASE_ISO"'" \
-#         -outdev "'"$OUT_ISO"'" \
-#         -boot_image any keep \
-#         -map "'"$LOCAL_RAW_IMAGE"'" /extra/"$(basename "'"$LOCAL_RAW_IMAGE"'")" \
-#         -commit
-#   '
+podman run --rm \
+    --security-opt label=disable \
+    -v "../:/work" \
+    -w /work \
+    ghcr.io/jumpyvi/xorriso:tanit \
+    sh -c '
+        apk add --no-cache xorriso && \
+        xorriso -indev "'"$BASE_ISO"'" \
+        -outdev "'"$OUT_ISO"'" \
+        -boot_image any keep \
+        -map "'"$LOCAL_RAW_IMAGE"'" /extra/"$(basename "'"$LOCAL_RAW_IMAGE"'")" \
+        -commit
+  '
 
 rm -f "$(basename "$XZ_IMAGE")"
 
