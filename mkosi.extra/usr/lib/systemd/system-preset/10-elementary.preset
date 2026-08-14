@@ -1,5 +1,4 @@
 enable systemd-resolved
-enable flatpak-preinstalld.service
 enable NetworkManager.service
 enable NetworkManager-wait-online.service
 disable systemd-networkd

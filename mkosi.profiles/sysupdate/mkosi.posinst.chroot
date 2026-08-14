@@ -1,0 +1,19 @@
+#!/bin/bash
+set -xeuo pipefail
+
+(
+    . /usr/lib/os-release
+cat >/usr/lib/os-release <<EOF
+NAME="ElementaryOS"
+ID="elementary"
+ID_LIKE="ubuntu"
+PRETTY_NAME="$NAME $VERSION_ID"
+FANCY_NAME="ElementaryOS 9 (Tanit)"
+VERSION="Tanit"
+VERSION_ID="9"
+ANSI_COLOR="38:2:252:186:3;1;49"
+ANSI_COLOR_REVERSE="48;2;252;186;3;1;30"
+HOME_URL="https://elementary.io/"
+EOF
+
+)

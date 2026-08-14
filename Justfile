@@ -1,25 +1,22 @@
-# resize:
-#     qemu-img resize ./mkosi.output/Elementary_x86-64.raw +40G
-
 default:
     #!/usr/bin/env bash
     set -xeuo pipefail
-    just build-sysupdate
+    just --choose
 
 profile-sysupdate:
     sudo rm -rf mkosi.output/sysupdate
     just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
-profile-flash:
-    sudo rm -rf mkosi.output/live
-    just run-in-podman mkosi -B --debug --force --profile=flash --workspace-directory=/workspace
+build-classic-liveenv:
+    sudo rm -rf mkosi.output/classic
+    just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
     sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
 generate-liveiso:
     #!/usr/bin/env bash
-    just profile-sysupdate
-    just profile-flash
+    just profile-sysupdate && \
+    just build-classic-liveenv && \
     ./assemble-iso.sh
 
 
@@ -30,6 +27,8 @@ run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     
     sudo podman run --rm -it \
+        --network host \
+        --dns 8.8.8.8 \
         --privileged \
         --security-opt label=disable \
         -v /var/cache/mkosi:/var/cache/mkosi \
@@ -37,14 +36,14 @@ run-in-podman +command:
         -v "{{invocation_directory()}}:/work" \
         -w /work \
         -v "{{env_var('HOME')}}/.cache/mkosi-workspace:/workspace" \
-        ghcr.io/jumpyvi/mkosi-debian:26 \
+        ghcr.io/jumpyvi/mkosi:tanit \
         {{command}}
 
 
 
 clean:
     just run-in-podman mkosi clean
-    sudo rm -r mkosi.tools/ mkosi.cache/
+    sudo rm -r mkosi.tools/ mkosi.cache/ /var/cache/mkosi/*
 
 sign-repo:
     #!/usr/bin/env bash
