@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd mkosi.output/classic/
+
+SEARCH_DIR=../sysupdate
+
+OUT_ISO="./elementary-liveiso.iso"
+
+# Detect version
+output_dir=$(ls -d elementaryclassic_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
+
+if [[ -z "$output_dir" ]]; then
+    echo "error: No mkosi.output, run just build-classic first." >&2
+    exit 1
+fi
+
+base_name=$(basename "$output_dir")
+echo "Detected release target: $base_name"
+
+rm -rf iso_root
+
+rsync -a --delete "${base_name}/iso_root/" iso_root/
+
+echo "Writing minimal APT disc structure for apt-cdrom..."
+
+mkdir -p iso_root/dists/stable/main/binary-amd64
+touch iso_root/dists/stable/main/binary-amd64/Packages
+gzip -kf iso_root/dists/stable/main/binary-amd64/Packages
+mkdir -p iso_root/pool
+
+
+echo "Shoving everything in casper..."
+sudo podman run --rm -it \
+  --network host \
+  --dns 8.8.8.8 \
+  -v "$(pwd)":/workspace:Z \
+  -w /workspace \
+  ghcr.io/jumpyvi/xorriso:tanit \
+  sh -c "set -e
+           KERNEL_VERSION=\$(ls ${base_name}/lib/modules | head -n 1)
+           chroot ${base_name} update-initramfs -u -k \${KERNEL_VERSION}
+           
+           cp ${base_name}/boot/vmlinuz-\${KERNEL_VERSION} iso_root/casper/vmlinuz
+           cp ${base_name}/boot/initrd.img-\${KERNEL_VERSION} iso_root/casper/initrd
+           
+           rm -f iso_root/casper/filesystem.squashfs
+           mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp xz
+           
+           grub-mkrescue -o custom_ubuntu_live.iso iso_root/
+           echo 'Live environment generated!'"
+
+
+echo "Generating installer..."
+BASE_ISO="./classic/custom_ubuntu_live.iso"
+rm -f "../$OUT_ISO"
+
+echo "Success! Your live ISO is at: mkosi.output/classic/custom_ubuntu_live.iso"

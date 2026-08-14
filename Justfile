@@ -19,6 +19,11 @@ generate-liveiso:
     just build-classic-liveenv && \
     ./assemble-iso.sh
 
+generate-liveiso-classiconly:
+    #!/usr/bin/env bash
+    just build-classic-liveenv && \
+    ./assemble-iso-classiconly.sh
+
 
 genkey:
     just run-in-podman mkosi genkey
