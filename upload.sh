@@ -43,15 +43,15 @@ echo -e "
 #-----------------------------------#
 "
 
-RAW="$(ls mkosi.output/Elementary_*_x86-64.raw)"
+RAW="$(ls mkosi.output/elementary_*_x86-64.raw)"
 SHA="${RAW}.sha256"
 MD5="${RAW}.md5"
 
 sha256sum \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64-verity.*.raw \
-  mkosi.output/Elementary_*_x86-64.usr-x86-64.*.raw \
-  mkosi.output/Elementary_*_x86-64.efi \
+  mkosi.output/elementary_*_x86-64.usr-x86-64-verity-sig.*.raw \
+  mkosi.output/elementary_*_x86-64.usr-x86-64-verity.*.raw \
+  mkosi.output/elementary_*_x86-64.usr-x86-64.*.raw \
+  mkosi.output/elementary_*_x86-64.efi \
   > SHA256SUMS
 
 sha256sum "$RAW" | tee "$SHA"

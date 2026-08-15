@@ -65,7 +65,7 @@ Append the exact version ID at the end to upgrade to a specific version, or down
 
 ### Versions
 
-| Features        | Elementary OS 9                    | Elementary OS 9 "Classic" |
+| Features        | elementary OS 9                    | elementary OS 9 "Classic" |
 | --------------- | ---------------------------------- | ------------------------- |
 | -> **Bootloader**      | systemd-boot (UEFI-Only)           | grub2                     |
 | -> **Atomic**          | Readonly /usr, with verity and sig | Insecure/Legacy           |

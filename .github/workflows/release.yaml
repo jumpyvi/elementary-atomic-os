@@ -1,4 +1,4 @@
-name: Build and Release DDI (Elementary OS 9)
+name: Build and Release DDI (elementary OS 9)
 
 on:
   workflow_dispatch:
@@ -44,9 +44,9 @@ jobs:
       - name: Extract Date
         id: get_date
         run: |
-          FILE_PATH=$(ls mkosi.output/sysupdate/Elementary_*.raw | grep -E 'Elementary_[0-9]+\.raw$' | head -n 1)
+          FILE_PATH=$(ls mkosi.output/sysupdate/elementary_*.raw | grep -E 'elementary_[0-9]+\.raw$' | head -n 1)
           FILE_NAME=$(basename "$FILE_PATH")
-          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^Elementary_//;s/\..*//')
+          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^elementary_//;s/\..*//')
 
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
           echo "Generated tag: os9-$TIMESTAMP"

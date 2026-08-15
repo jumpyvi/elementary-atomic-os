@@ -53,9 +53,9 @@ sign-repo:
     cd mkosi.output
     echo "Repo will not be signed, use verify=no."
     echo "Generating SHA256..."
-    sha256sum Elementary_*.usr-x86-64-verity-sig.*.raw \
-          Elementary_*.usr-x86-64-verity.*.raw \
-          Elementary_*.usr-x86-64.*.raw \
-          Elementary_*.efi \
+    sha256sum elementary_*.usr-x86-64-verity-sig.*.raw \
+          elementary_*.usr-x86-64-verity.*.raw \
+          elementary_*.usr-x86-64.*.raw \
+          elementary_*.efi \
           > SHA256SUMS
     cd ..
