@@ -1,9 +1,0 @@
-[Unit]
-Description=Watch for demo mode flag file
-
-[Path]
-PathExists=/var/lib/lightdm/demo-mode
-Unit=installer-force-exit.service
-
-[Install]
-WantedBy=multi-user.target

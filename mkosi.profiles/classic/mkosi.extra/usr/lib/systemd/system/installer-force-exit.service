@@ -1,9 +1,0 @@
-[Unit]
-Description=Remove lightdm.conf.d when demo mode flag is set
-ConditionPathExists=!/run/demo-lightdm-cleanup.done
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/rm -rf /etc/lightdm/lightdm.conf.d
-ExecStart=/usr/bin/systemctl restart lightdm.service
-ExecStart=/usr/bin/touch /run/demo-lightdm-cleanup.done
