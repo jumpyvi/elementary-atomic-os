@@ -6,23 +6,21 @@ default:
 profile-sysupdate:
     sudo rm -rf mkosi.output/sysupdate
     just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
-    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
 build-classic-liveenv:
     sudo rm -rf mkosi.output/classic
     just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
-    sudo chown -R {{env_var('USER')}}:{{env_var('USER')}} ./mkosi.output/
 
 generate-liveiso:
     #!/usr/bin/env bash
     just profile-sysupdate && \
     just build-classic-liveenv && \
-    ./assemble-iso.sh
+    sudo ./assemble-iso.sh
 
 generate-liveiso-classiconly:
     #!/usr/bin/env bash
     just build-classic-liveenv && \
-    ./assemble-iso-classiconly.sh
+    sudo ./assemble-iso-classiconly.sh
 
 
 genkey:
