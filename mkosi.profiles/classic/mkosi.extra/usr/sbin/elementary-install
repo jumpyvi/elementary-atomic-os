@@ -15,9 +15,14 @@ fi
 
 echo "Using source image: $raw_xz_src"
 
-selected_disk=$(lsblk -d -n -p -o NAME,SIZE,MODEL -e 7,11 | fzf \
-    --prompt="Select installation disk (ALL DATA WILL BE LOST): " \
-    --header="NAME          SIZE  MODEL")
+PS3="Select installation disk (ALL DATA WILL BE LOST): "
+
+select selected_disk in $(lsblk -d -n -p -o NAME -e 7,11); do
+    if [[ -n "$selected_disk" ]]; then
+        break
+    fi
+    echo "Invalid selection, try again."
+done
 
 if [ -z "$selected_disk" ]; then
     echo "Installation aborted: No disk selected."
