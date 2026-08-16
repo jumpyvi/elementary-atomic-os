@@ -26,6 +26,11 @@ jobs:
       - name: Release
         run: just do-release
 
+      - name: Fix output dir ownership
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" mkosi.output
+          sudo chmod -R u+rwX mkosi.output
+
       - name: Compress (xz7) usr.raw
         run: |
           find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
