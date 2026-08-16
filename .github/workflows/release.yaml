@@ -31,14 +31,9 @@ jobs:
           sudo chown -R "$(id -u):$(id -g)" mkosi.output
           sudo chmod -R u+rwX mkosi.output
 
-      - name: Compress (xz7) usr.raw
+      - name: Compress (xz) usr partition
         run: |
           find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
-
-      - name: Sign ISO
-        run: |
-          cd mkosi.output
-          sha256sum elementary-liveiso.iso > elementary-liveiso.iso.sha256
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
@@ -62,7 +57,7 @@ jobs:
         run: |
           cd mkosi.output
           for f in sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*.raw.xz.sha256 \
-                   elementary-liveiso.iso elementary-liveiso.iso.sha256 SHA256SUMS; do
+                   elementary-liveiso.iso SHA256SUMS; do
             aws s3 cp "$f" "s3://${{ secrets.bucket }}/" \
               --endpoint-url "${{ secrets.endpoint }}"
           done
