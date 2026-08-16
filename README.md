@@ -29,16 +29,11 @@ You'll need the following dependencies:
 * podman
 * just
 
-Create the cache directory
-```
-sudo mkdir /var/cache/mkosi
-```
-
 Generate keys and then build with `just`
 
 ```bash
 just genkey
-just generate-liveiso
+just do-release
 ```
 Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression). Or boot with Gnome Boxes (>=51). Then, in demo mode, install via script:
 

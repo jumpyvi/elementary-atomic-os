@@ -28,6 +28,7 @@ genkey:
 
 run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
+    mkdir -p /var/cache/mkosi
     
     sudo podman run --rm -it \
         --network host \

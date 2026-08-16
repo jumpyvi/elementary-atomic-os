@@ -17,9 +17,6 @@ jobs:
       - name: Maximize build space
         uses: ublue-os/remove-unwanted-software@v8
 
-      - name: Install mkosi
-        uses: systemd/mkosi@v26
-
       - name: Install deps
         run: sudo apt-get update && sudo apt-get install just podman -y
 
