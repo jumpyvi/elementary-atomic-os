@@ -51,6 +51,23 @@ jobs:
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
           echo "Generated tag: os9-$TIMESTAMP"
 
+      - name: Upload xz to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          cd mkosi.output/sysupdate
+
+          for f in *.usr-*.raw.xz; do
+            sha256sum "$f" > "$f.sha256"
+
+            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET }}/" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+            aws s3 cp "$f.sha256" "s3://${{ secrets.R2_BUCKET }}/" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          done
+
       - name: Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
         with:
@@ -58,7 +75,6 @@ jobs:
           name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
             mkosi.output/sysupdate/*.efi
-            mkosi.output/sysupdate/*.usr-*.raw.xz
             mkosi.output/sysupdate/*.usr-*-verity*.raw
             mkosi.output/sysupdate/*.usr-*-verity-sig*.raw
             mkosi.output/sysupdate/SHA256SUMS
