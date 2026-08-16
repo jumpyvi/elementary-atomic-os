@@ -11,7 +11,7 @@ build-classic-liveenv:
     sudo rm -rf mkosi.output/classic
     just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
 
-generate-liveiso:
+do-release:
     #!/usr/bin/env bash
     just profile-sysupdate && \
     just build-classic-liveenv && \

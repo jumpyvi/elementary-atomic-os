@@ -1,4 +1,4 @@
-name: Build and Release DDI (elementary OS 9)
+name: Build and Release (elementary OS 9)
 
 on:
   workflow_dispatch:
@@ -20,53 +20,51 @@ jobs:
       - name: Install mkosi
         uses: systemd/mkosi@v26
 
+      - name: Install deps
+        run: apt-get update && apt-get install just podman -y
+
       - name: Generate key
-        run: mkosi genkey
+        run: just genkey
 
-      - name: Build image with mkosi
-        run: |
-          sudo mkosi -B --debug --force --profile=sysupdate
-
-      - name: Update permissions
-        run: sudo chown -R $USER:$USER mkosi.output
+      - name: Release
+        run: just do-release
 
       - name: Compress (xz7) usr.raw
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
 
-      - name: Generate SHA256SUMS
+      - name: Sign ISO
         run: |
-          cd mkosi.output/sysupdate
-          sha256sum *.efi *.usr-*.raw.xz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
-          echo "Generated SHA256SUMS:"
+          cd mkosi.output
+          sha256sum elementary-liveiso.iso > elementary-liveiso.iso.sha256
+
+      - name: Generate SHA256SUMS (all partitions)
+        run: |
+          cd mkosi.output
+          sha256sum sysupdate/*.efi sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw \
+            | sed 's|sysupdate/||' > SHA256SUMS
           cat SHA256SUMS
 
       - name: Extract Date
         id: get_date
         run: |
           FILE_PATH=$(ls mkosi.output/sysupdate/elementary_*.raw | grep -E 'elementary_[0-9]+\.raw$' | head -n 1)
-          FILE_NAME=$(basename "$FILE_PATH")
-          TIMESTAMP=$(echo "$FILE_NAME" | sed 's/^elementary_//;s/\..*//')
-
+          TIMESTAMP=$(basename "$FILE_PATH" | sed 's/^elementary_//;s/\..*//')
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
-          echo "Generated tag: os9-$TIMESTAMP"
 
-      - name: Upload xz to R2
+      - name: Upload usr, iso and SHA256SUMS to Bucket
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.key }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.secret }}
           AWS_DEFAULT_REGION: auto
         run: |
-          cd mkosi.output/sysupdate
-
-          for f in *.usr-*.raw.xz; do
-            sha256sum "$f" > "$f.sha256"
-
-            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET }}/" \
-              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
-            aws s3 cp "$f.sha256" "s3://${{ secrets.R2_BUCKET }}/" \
-              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          cd mkosi.output
+          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*.raw.xz.sha256 \
+                   elementary-liveiso.iso elementary-liveiso.iso.sha256 SHA256SUMS; do
+            aws s3 cp "$f" "s3://${{ secrets.bucket }}/" \
+              --endpoint-url "${{ secrets.endpoint }}"
           done
+
 
       - name: Create Release and Upload Artifacts
         uses: softprops/action-gh-release@v3
