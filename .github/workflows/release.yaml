@@ -21,7 +21,7 @@ jobs:
         uses: systemd/mkosi@v26
 
       - name: Install deps
-        run: apt-get update && apt-get install just podman -y
+        run: sudo apt-get update && sudo apt-get install just podman -y
 
       - name: Generate key
         run: just genkey
