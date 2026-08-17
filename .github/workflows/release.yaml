@@ -23,9 +23,6 @@ jobs:
       - name: Generate key
         run: just genkey
 
-      - name: Remove previous output
-        run: sudo rm -rf mkosi.output
-
       - name: Release
         run: just do-release
 
@@ -59,13 +56,13 @@ jobs:
           AWS_DEFAULT_REGION: auto
           AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
         run: |
-          aws s3 cp mkosi.output/sysupdate/*.esp.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-{x86-64,arm64}.raw.xz "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-{x86-64,arm64}-verity.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-{x86-64,arm64}-verity-sig.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/SHA256SUMS "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
-
+          aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" \
+            --exclude "*" \
+            --include="*.esp.raw" \
+            --include=*.usr-{x86-64,arm64}.raw.xz \
+            --include=*.usr-{x86-64,arm64}-verity.raw \
+            --include=*.usr-{x86-64,arm64}-verity-sig.raw \
+            --include="SHA256SUMS"
 
       # - name: Create Release and Upload Artifacts
       #   uses: softprops/action-gh-release@v3
