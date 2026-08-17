@@ -38,7 +38,11 @@ jobs:
       - name: Generate SHA256SUMS (all partitions)
         run: |
           cd mkosi.output/sysupdate
-          sha256sum *.esp.raw *.usr-*.raw.xz *.usr-*-verity*.raw *.usr-*-verity-sig*.raw > SHA256SUMS
+          sha256sum *.esp.raw \
+              *.usr-*.*.raw.xz \
+              *.usr-*-verity.*.raw \
+              *.usr-*-verity-sig.*.raw \
+              > SHA256SUMS
           cat SHA256SUMS
 
       - name: Extract Date
@@ -58,9 +62,9 @@ jobs:
           aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" \
             --exclude "*" \
             --include=*.esp.raw \
-            --include=*.usr-*.raw.xz \
-            --include=*.usr-*-verity*.raw \
-            --include=*.usr-*-verity-sig*.raw \
+            --include=*.usr-*.*.raw.xz \
+            --include=*.usr-*-verity.*.raw \
+            --include=*.usr-*-verity-sig.*.raw \
             --include="SHA256SUMS"
           aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
 
