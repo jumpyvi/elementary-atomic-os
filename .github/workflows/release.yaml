@@ -33,7 +33,7 @@ jobs:
 
       - name: Compress (xz) usr partition
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
@@ -59,8 +59,8 @@ jobs:
             --exclude "*" \
             --include=*.esp.raw \
             --include=*.usr-*.raw.xz \
-            --include=*.usr-*-verity.raw \
-            --include=*.usr-*-verity-sig.raw \
+            --include=*.usr-*-verity*.raw \
+            --include=*.usr-*-verity-sig*.raw \
             --include="SHA256SUMS"
           aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
 
