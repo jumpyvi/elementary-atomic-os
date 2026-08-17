@@ -56,7 +56,7 @@ jobs:
           AWS_DEFAULT_REGION: auto
         run: |
           cd mkosi.output
-          for f in sysupdate/*.usr-*.raw.xz sysupdate/SHA256SUMS sysupdate/*.efi sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw; do
+          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.efi sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw SHA256SUMS; do
             aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_UPDATES }}/" \
               --endpoint-url "${{ secrets.R2_ENDPOINT }}"
           done
