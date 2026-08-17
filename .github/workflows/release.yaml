@@ -56,12 +56,12 @@ jobs:
           AWS_DEFAULT_REGION: auto
           AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
         run: |
+          aws s3 cp "elementary-liveiso.iso" "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
           aws s3 cp mkosi.output/sysupdate/*.usr-*.raw.xz "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
           aws s3 cp mkosi.output/sysupdate/*.efi "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
           aws s3 cp mkosi.output/sysupdate/*.usr-*-verity*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
           aws s3 cp mkosi.output/sysupdate/*.usr-*-verity-sig*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
           aws s3 cp mkosi.output/sysupdate/SHA256SUMS "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp "elementary-liveiso.iso" "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
 
 
       - name: Create Release and Upload Artifacts
