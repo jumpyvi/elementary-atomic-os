@@ -63,6 +63,8 @@ jobs:
             --include=*.usr-{x86-64,arm64}-verity.raw \
             --include=*.usr-{x86-64,arm64}-verity-sig.raw \
             --include="SHA256SUMS"
+          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
+
 
       # - name: Create Release and Upload Artifacts
       #   uses: softprops/action-gh-release@v3
