@@ -56,8 +56,11 @@ jobs:
           AWS_DEFAULT_REGION: auto
         run: |
           cd mkosi.output
-          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*.raw.xz.sha256 \
-                   elementary-liveiso.iso SHA256SUMS; do
+          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*.raw.xz.sha256; do
+            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_UPDATES }}/" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          done
+          for f in elementary-liveiso.iso SHA256SUMS; do
             aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/" \
               --endpoint-url "${{ secrets.R2_ENDPOINT }}"
           done
