@@ -51,15 +51,18 @@ jobs:
 
       - name: Upload usr, iso and SHA256SUMS to Bucket
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.key }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.secret }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
         run: |
           cd mkosi.output
-          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*.raw.xz.sha256 \
-                   elementary-liveiso.iso SHA256SUMS; do
-            aws s3 cp "$f" "s3://${{ secrets.bucket }}/" \
-              --endpoint-url "${{ secrets.endpoint }}"
+          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.efi sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw SHA256SUMS; do
+            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_UPDATES }}/" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+          done
+          for f in elementary-liveiso.iso; do
+            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/" \
+              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
           done
 
 
