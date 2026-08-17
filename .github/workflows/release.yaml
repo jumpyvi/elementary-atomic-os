@@ -33,7 +33,7 @@ jobs:
 
       - name: Compress (xz) usr partition
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-{x86-64,arm64}.raw" -exec xz -5v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" -exec xz -5v -T0 {} +
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
