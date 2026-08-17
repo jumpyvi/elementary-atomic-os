@@ -33,7 +33,7 @@ jobs:
 
       - name: Compress (xz) usr partition
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-{x86-64,arm64}.raw" -exec xz -5v -T0 {} +
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
@@ -70,10 +70,10 @@ jobs:
           tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
           name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
-            mkosi.output/sysupdate/*.usr-*.raw.xz
             mkosi.output/sysupdate/*.efi
-            mkosi.output/sysupdate/*.usr-*-verity*.raw
-            mkosi.output/sysupdate/*.usr-*-verity-sig*.raw
+            mkosi.output/sysupdate/*.usr-{x86-64,arm64}.raw.xz
+            mkosi.output/sysupdate/*.usr-{x86-64,arm64}-verity.raw
+            mkosi.output/sysupdate/*.usr-{x86-64,arm64}-verity-sig.raw
             mkosi.output/sysupdate/SHA256SUMS
 
           
