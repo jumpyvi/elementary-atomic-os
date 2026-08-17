@@ -23,6 +23,9 @@ jobs:
       - name: Generate key
         run: just genkey
 
+      - name: Remove previous output
+        run: sudo rm -rf mkosi.output
+
       - name: Release
         run: just do-release
 
