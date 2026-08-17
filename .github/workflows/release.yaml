@@ -38,7 +38,7 @@ jobs:
       - name: Generate SHA256SUMS (all partitions)
         run: |
           cd mkosi.output/sysupdate
-          sha256sum sysupdate/*.usr-*.raw.xz *.usr-*-verity.raw *.usr-*-verity-sig.raw > SHA256SUMS
+          sha256sum *.usr-*.raw.xz *.usr-*-verity.raw *.usr-*-verity-sig.raw > SHA256SUMS
           cat SHA256SUMS
 
       - name: Extract Date
