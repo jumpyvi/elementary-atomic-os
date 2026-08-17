@@ -64,17 +64,3 @@ jobs:
             --include="SHA256SUMS"
           aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
 
-
-      # - name: Create Release and Upload Artifacts
-      #   uses: softprops/action-gh-release@v3
-      #   with:
-      #     tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
-      #     name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
-      #     files: |
-      #       mkosi.output/sysupdate/*.esp.raw
-      #       mkosi.output/sysupdate/*.usr-*.raw.xz
-      #       mkosi.output/sysupdate/*.usr-*-verity.raw
-      #       mkosi.output/sysupdate/*.usr-*-verity-sig.raw
-      #       mkosi.output/sysupdate/SHA256SUMS
-
-          
