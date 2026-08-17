@@ -49,19 +49,19 @@ jobs:
           TIMESTAMP=$(basename "$FILE_PATH" | sed 's/^elementary_//;s/\..*//')
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
 
-      - name: Upload usr, iso and SHA256SUMS to Bucket
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
-        run: |
-          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-*.raw.xz "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.efi "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-*-verity*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/*.usr-*-verity-sig*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
-          aws s3 cp mkosi.output/sysupdate/SHA256SUMS "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
+      # - name: Upload usr, iso and SHA256SUMS to Bucket
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      #     AWS_DEFAULT_REGION: auto
+      #     AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
+      #   run: |
+      #     aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
+      #     aws s3 cp mkosi.output/sysupdate/*.usr-*.raw.xz "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
+      #     aws s3 cp mkosi.output/sysupdate/*.efi "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
+      #     aws s3 cp mkosi.output/sysupdate/*.usr-*-verity*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
+      #     aws s3 cp mkosi.output/sysupdate/*.usr-*-verity-sig*.raw "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
+      #     aws s3 cp mkosi.output/sysupdate/SHA256SUMS "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/"
 
 
       - name: Create Release and Upload Artifacts
@@ -70,6 +70,7 @@ jobs:
           tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
           name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
           files: |
+            mkosi.output/sysupdate/*.usr-*.raw.xz
             mkosi.output/sysupdate/*.efi
             mkosi.output/sysupdate/*.usr-*-verity*.raw
             mkosi.output/sysupdate/*.usr-*-verity-sig*.raw
