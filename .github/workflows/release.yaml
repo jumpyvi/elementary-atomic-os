@@ -33,13 +33,16 @@ jobs:
 
       - name: Compress (xz) usr partition
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-x86-64.raw" -exec xz -5v -T0 {} +
+          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
-          cd mkosi.output
-          sha256sum sysupdate/*.efi sysupdate/*.usr-*.raw.xz sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw \
-            | sed 's|sysupdate/||' > SHA256SUMS
+          cd mkosi.output/sysupdate
+          sha256sum *.esp.raw \
+              *.usr-*.*.raw.xz \
+              *.usr-*-verity.*.raw \
+              *.usr-*-verity-sig.*.raw \
+              > SHA256SUMS
           cat SHA256SUMS
 
       - name: Extract Date
@@ -54,25 +57,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: auto
+          AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
         run: |
-          cd mkosi.output
-          for f in sysupdate/*.usr-*.raw.xz sysupdate/*.efi sysupdate/*.usr-*-verity*.raw sysupdate/*.usr-*-verity-sig*.raw SHA256SUMS; do
-            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" \
-              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
-          done
-          for f in elementary-liveiso.iso; do
-            aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/" \
-              --endpoint-url "${{ secrets.R2_ENDPOINT }}"
-          done
+          aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" \
+            --exclude "*" \
+            --include=*.esp.raw \
+            --include=*.usr-*.*.raw.xz \
+            --include=*.usr-*-verity.*.raw \
+            --include=*.usr-*-verity-sig.*.raw \
+            --include="SHA256SUMS"
+          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
 
-
-      - name: Create Release and Upload Artifacts
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.get_date.outputs.RELEASE_TAG }}
-          name: Release ${{ steps.get_date.outputs.RELEASE_TAG }}
-          files: |
-            mkosi.output/sysupdate/*.efi
-            mkosi.output/sysupdate/*.usr-*-verity*.raw
-            mkosi.output/sysupdate/*.usr-*-verity-sig*.raw
-            mkosi.output/sysupdate/SHA256SUMS
