@@ -3,11 +3,17 @@ default:
     set -xeuo pipefail
     just --choose
 
-do-release:
+do-daily:
     #!/usr/bin/env bash
     sudo rm -rf mkosi.output/
-    just run-in-podman mkosi -B --debug --force --workspace-directory=/workspace
+    just run-in-podman mkosi -B --debug --profile=daily --force --workspace-directory=/workspace
     sudo ./assemble-iso.sh
+
+
+do-release:
+    #!/usr/bin/env bash
+    echo "nyi, run do-daily instead"
+
 genkey:
     just run-in-podman mkosi genkey
 

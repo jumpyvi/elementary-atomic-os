@@ -1,4 +1,4 @@
-name: Build and Release (elementary OS 9)
+name: Build and Release Daily (elementary OS 9)
 
 on:
   workflow_dispatch:
@@ -30,7 +30,7 @@ jobs:
         run: just genkey
 
       - name: Release
-        run: just do-release
+        run: just do-daily
 
       - name: Fix output dir ownership
         run: |
