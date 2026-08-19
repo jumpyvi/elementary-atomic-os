@@ -56,10 +56,10 @@ jobs:
         run: |
           set -euo pipefail
           FILE_PATH=$(ls mkosi.output/*.usr-*.raw.xz | head -n 1)
-          TIMESTAMP=$(basename "$FILE_PATH" | grep -oE '[0-9]{8}' | head -n 1 || true)
+          TIMESTAMP=$(basename "$FILE_PATH" | grep -oE '[0-9]{14}' | head -n 1 || true)
           if [ -z "$TIMESTAMP" ]; then
-            echo "No date found in $(basename "$FILE_PATH"), falling back to build date."
-            TIMESTAMP=$(date -u +%Y%m%d)
+            echo "Fatal: No timpestamped file found."
+            exit 0
           fi
           echo "Release date: $TIMESTAMP"
           echo "RELEASE_DATE=$TIMESTAMP" >> "$GITHUB_OUTPUT"
@@ -77,7 +77,7 @@ jobs:
           tag_name: ${{ steps.get_date.outputs.RELEASE_DATE }}
           name: Extension release ${{ steps.get_date.outputs.RELEASE_DATE }}
           files: |
-            mkosi.output/ext*.raw.xz
+            mkosi.output/ext-*.raw.xz
             mkosi.output/SHA256SUMS
 
       - name: Upload usr, iso and SHA256SUMS to Bucket
