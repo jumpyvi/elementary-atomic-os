@@ -3,26 +3,11 @@ default:
     set -xeuo pipefail
     just --choose
 
-profile-sysupdate:
-    sudo rm -rf mkosi.output/sysupdate
-    just run-in-podman mkosi -B --debug --force --profile=sysupdate --workspace-directory=/workspace
-
-build-classic-liveenv:
-    sudo rm -rf mkosi.output/classic
-    just run-in-podman mkosi -B --debug --force --profile=classic --workspace-directory=/workspace
-
 do-release:
     #!/usr/bin/env bash
-    just profile-sysupdate && \
-    just build-classic-liveenv && \
+    sudo rm -rf mkosi.output/
+    just run-in-podman mkosi -B --debug --force --workspace-directory=/workspace
     sudo ./assemble-iso.sh
-
-generate-liveiso-classiconly:
-    #!/usr/bin/env bash
-    just build-classic-liveenv && \
-    sudo ./assemble-iso-classiconly.sh
-
-
 genkey:
     just run-in-podman mkosi genkey
 

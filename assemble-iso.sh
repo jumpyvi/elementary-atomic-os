@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd mkosi.output/classic/
+cd mkosi.output/
 
-SEARCH_DIR=../sysupdate
+SEARCH_DIR=.
 
-OUT_ISO="./elementary-liveiso.iso"
+DATE=$(basename $(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n1))
+DATE=${DATE#liveiso_}
+
+OUT_ISO="./elementaryos-9.0-daily-amd64.${DATE}.iso"
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
-    | grep -E '/[^/]+_[0-9]{14}\.raw$' \
-    | head -n1)
+  | grep -E '/[^/]+_[0-9]{14}\.raw$' \
+  | head -n1)
 
 if [[ -z "$RAW_IMAGE" ]]; then
-    echo "error: No .raw image found matching the pattern." >&2
-    exit 1
+  echo "error: No .raw image found matching the pattern." >&2
+  exit 1
 fi
 
 XZ_IMAGE="${RAW_IMAGE}.xz"
@@ -20,11 +23,11 @@ echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
 xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
 
 # Detect version
-output_dir=$(ls -d elementaryclassic_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
+output_dir=$(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
 
 if [[ -z "$output_dir" ]]; then
-    echo "error: No mkosi.output, run just build-classic first." >&2
-    exit 1
+  echo "error: No mkosi.output, run just build-classic first." >&2
+  exit 1
 fi
 
 base_name=$(basename "$output_dir")
@@ -52,30 +55,26 @@ sudo podman run --rm -it \
   sh -c "set -e
            KERNEL_VERSION=\$(ls ${base_name}/lib/modules | head -n 1)
            chroot ${base_name} update-initramfs -u -k \${KERNEL_VERSION}
-           
            cp ${base_name}/boot/vmlinuz-\${KERNEL_VERSION} iso_root/casper/vmlinuz
            cp ${base_name}/boot/initrd.img-\${KERNEL_VERSION} iso_root/casper/initrd
-           
            rm -f iso_root/casper/filesystem.squashfs
            mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp xz
-           
            grub-mkrescue -o custom_ubuntu_live.iso iso_root/
            echo 'Live environment generated!'"
 
 
 echo "Generating installer..."
-BASE_ISO="./classic/custom_ubuntu_live.iso"
-rm -f "../$OUT_ISO"
+BASE_ISO="./custom_ubuntu_live.iso"
+rm -f "$OUT_ISO"
 
-cp "$XZ_IMAGE" .
-LOCAL_RAW_IMAGE="./classic/$(basename "$XZ_IMAGE")"
+LOCAL_RAW_IMAGE="./$(basename "$XZ_IMAGE")"
 
 podman run --rm \
-    --security-opt label=disable \
-    -v "../:/work" \
-    -w /work \
-    ghcr.io/jumpyvi/xorriso:tanit \
-    sh -c '
+  --security-opt label=disable \
+  -v "$(pwd):/work" \
+  -w /work \
+  ghcr.io/jumpyvi/xorriso:tanit \
+  sh -c '
         apk add --no-cache xorriso && \
         xorriso -indev "'"$BASE_ISO"'" \
         -outdev "'"$OUT_ISO"'" \
@@ -83,7 +82,5 @@ podman run --rm \
         -map "'"$LOCAL_RAW_IMAGE"'" /extra/"$(basename "'"$LOCAL_RAW_IMAGE"'")" \
         -commit
   '
-
-rm -f "$(basename "$XZ_IMAGE")"
 
 echo "Success! Your live ISO is at: mkosi.output/$OUT_ISO"
