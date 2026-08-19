@@ -90,15 +90,14 @@ jobs:
             --cache-control "no-cache"
 
           # 3. Live ISO + hash
-          ISO_NAME="elementaryos-$OS_VERSION-daily-$ARCH.${{ steps.get_date.outputs.RELEASE_DATE }}.iso"
-          mv mkosi.output/elementary-liveiso.iso "mkosi.output/$ISO_NAME"
-          ( cd mkosi.output && sha256sum "$ISO_NAME" > "$ISO_NAME.sha256.txt" )
+          ISO=$(basename $(ls mkosi.output/elementaryos-*.iso | head -n 1))
+          ( cd mkosi.output && sha256sum "$ISO" > "$ISO.sha256.txt" )
 
           ISO_DEST="s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/$ARCH"
 
-          aws s3 cp "mkosi.output/$ISO_NAME" "$ISO_DEST/$ISO_NAME" \
+          aws s3 cp "mkosi.output/$ISO" "$ISO_DEST/$ISO" \
             --cache-control "public, max-age=31536000, immutable"
 
-          aws s3 cp "mkosi.output/$ISO_NAME.sha256.txt" "$ISO_DEST/$ISO_NAME.sha256.txt" \
+          aws s3 cp "mkosi.output/$ISO.sha256.txt" "$ISO_DEST/$ISO.sha256.txt" \
             --content-type "text/plain" \
             --cache-control "public, max-age=31536000, immutable"
