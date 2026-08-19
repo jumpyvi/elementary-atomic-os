@@ -64,6 +64,22 @@ jobs:
           echo "Release date: $TIMESTAMP"
           echo "RELEASE_DATE=$TIMESTAMP" >> "$GITHUB_OUTPUT"
 
+      - name: Compress and Checksum Extensions
+        run: |
+          cd mkosi.output
+          xz -5 -T0 ext-*.raw
+          sha256sum ext-*.raw.xz > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Release Extensions
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.get_date.outputs.RELEASE_DATE }}
+          name: Extension release ${{ steps.get_date.outputs.RELEASE_DATE }}
+          files: |
+            mkosi.output/ext*.raw.xz
+            mkosi.output/SHA256SUMS
+
       - name: Upload usr, iso and SHA256SUMS to Bucket
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
