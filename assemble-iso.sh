@@ -10,7 +10,7 @@ DATE=${DATE#liveiso_}
 OUT_ISO="./elementaryos-9.0-daily-$(uname -m).${DATE}.iso"
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
-  | grep -E '/[^/]+_[0-9]{14}\.raw$' \
+  | grep -E '/elementary_[0-9]{14}\.raw$' \
   | head -n1)
 
 if [[ -z "$RAW_IMAGE" ]]; then
