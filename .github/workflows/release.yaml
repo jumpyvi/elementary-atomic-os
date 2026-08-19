@@ -9,10 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      # systemd architecture ID, as expanded by %a in the sysupdate transfer config.
+      # Must be x86-64 or arm64
+      ARCH: x86-64
+      # OS Version should be quoted so 9.0 isn't recuded to just 9
+      OS_VERSION: "9.0"
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Maximize build space
         uses: ublue-os/remove-unwanted-software@v8
@@ -48,10 +54,15 @@ jobs:
       - name: Extract Date
         id: get_date
         run: |
-          FILE_PATH=$(ls mkosi.output/sysupdate/elementary_*.raw | grep -E 'elementary_[0-9]+\.raw$' | head -n 1)
-          TIMESTAMP=$(basename "$FILE_PATH" | sed 's/^elementary_//;s/\..*//')
-          echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
-          echo "RELEASE_DATE=${TIMESTAMP:0:8}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          FILE_PATH=$(ls mkosi.output/sysupdate/*.usr-*.raw.xz | head -n 1)
+          TIMESTAMP=$(basename "$FILE_PATH" | grep -oE '[0-9]{8}' | head -n 1 || true)
+          if [ -z "$TIMESTAMP" ]; then
+            echo "No date found in $(basename "$FILE_PATH"), falling back to build date."
+            TIMESTAMP=$(date -u +%Y%m%d)
+          fi
+          echo "Release date: $TIMESTAMP"
+          echo "RELEASE_DATE=$TIMESTAMP" >> "$GITHUB_OUTPUT"
 
       - name: Upload usr, iso and SHA256SUMS to Bucket
         env:
@@ -60,12 +71,25 @@ jobs:
           AWS_DEFAULT_REGION: auto
           AWS_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT }}
         run: |
-          aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" \
-            --exclude "*" \
-            --include=*.esp.raw \
-            --include=*.usr-*.*.raw.xz \
-            --include=*.usr-*-verity.*.raw \
-            --include=*.usr-*-verity-sig.*.raw \
-            --include="SHA256SUMS"
-          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/amd64/elementaryos-9.0-daily-amd64.${{ steps.get_date.outputs.RELEASE_DATE }}.iso"
+          set -euo pipefail
 
+          # 1. Images
+          aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/" \
+            --exclude "*" \
+            --include "*.esp.raw" \
+            --include "*.usr-*.*.raw.xz" \
+            --include "*.usr-*-verity.*.raw" \
+            --include "*.usr-*-verity-sig.*.raw" \
+            --cache-control "public, max-age=31536000, immutable"
+
+          # 2. SHA256SUMS
+          # not cached, will change when new updates are uploaded
+          aws s3 cp mkosi.output/sysupdate/SHA256SUMS \
+            "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/SHA256SUMS" \
+            --content-type "text/plain" \
+            --cache-control "no-cache"
+
+          # 3. Live ISO
+          aws s3 cp mkosi.output/elementary-liveiso.iso \
+            "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/$ARCH/elementaryos-$OS_VERSION-daily-$ARCH.${{ steps.get_date.outputs.RELEASE_DATE }}.iso" \
+            --cache-control "public, max-age=31536000, immutable"
