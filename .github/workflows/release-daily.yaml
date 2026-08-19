@@ -83,6 +83,7 @@ jobs:
             \) -print0 | while IFS= read -r -d '' f; do
               aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/" --cache-control "public, max-age=31536000, immutable"
             done
+          cd ..
             
 
           # 2. SHA256SUMS
