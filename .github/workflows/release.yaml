@@ -39,11 +39,11 @@ jobs:
 
       - name: Compress (xz) usr partition
         run: |
-          find mkosi.output/sysupdate -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
+          find mkosi.output -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
 
       - name: Generate SHA256SUMS (all partitions)
         run: |
-          cd mkosi.output/sysupdate
+          cd mkosi.output
           sha256sum *.esp.raw \
               *.usr-*.*.raw.xz \
               *.usr-*-verity.*.raw \
@@ -55,7 +55,7 @@ jobs:
         id: get_date
         run: |
           set -euo pipefail
-          FILE_PATH=$(ls mkosi.output/sysupdate/*.usr-*.raw.xz | head -n 1)
+          FILE_PATH=$(ls mkosi.output/*.usr-*.raw.xz | head -n 1)
           TIMESTAMP=$(basename "$FILE_PATH" | grep -oE '[0-9]{8}' | head -n 1 || true)
           if [ -z "$TIMESTAMP" ]; then
             echo "No date found in $(basename "$FILE_PATH"), falling back to build date."
@@ -74,24 +74,28 @@ jobs:
           set -euo pipefail
 
           # 1. Images
-          aws s3 sync mkosi.output/sysupdate/ "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/" \
-            --exclude "*" \
-            --include "*.esp.raw" \
-            --include "*.usr-*.*.raw.xz" \
-            --include "*.usr-*-verity.*.raw" \
-            --include "*.usr-*-verity-sig.*.raw" \
-            --cache-control "public, max-age=31536000, immutable"
+          cd mkosi.output
+          find . -maxdepth 1 -type f \( \
+              -name "*.esp.raw" \
+              -o -name "*.usr-*.*.raw.xz" \
+              -o -name "*.usr-*-verity.*.raw" \
+              -o -name "*.usr-*-verity-sig.*.raw" \
+              -o -name "SHA256SUMS" \
+            \) -print0 | while IFS= read -r -d '' f; do
+              aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/" --cache-control "public, max-age=31536000, immutable"
+            done
+            
 
           # 2. SHA256SUMS
           # not cached, will change when new updates are uploaded
-          aws s3 cp mkosi.output/sysupdate/SHA256SUMS \
+          aws s3 cp mkosi.output/SHA256SUMS \
             "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/SHA256SUMS" \
             --content-type "text/plain" \
             --cache-control "no-cache"
 
           # 3. Live ISO + hash
           ISO_NAME="elementaryos-$OS_VERSION-daily-$ARCH.${{ steps.get_date.outputs.RELEASE_DATE }}.iso"
-          mv mkosi.output/elementary-liveiso.iso "mkosi.output/$ISO_NAME"
+          mv mkosi.output/elementaryos-9.0-*.iso "mkosi.output/$ISO_NAME"
           ( cd mkosi.output && sha256sum "$ISO_NAME" > "$ISO_NAME.sha256.txt" )
 
           ISO_DEST="s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/$ARCH"
