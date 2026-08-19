@@ -51,6 +51,7 @@ jobs:
           FILE_PATH=$(ls mkosi.output/sysupdate/elementary_*.raw | grep -E 'elementary_[0-9]+\.raw$' | head -n 1)
           TIMESTAMP=$(basename "$FILE_PATH" | sed 's/^elementary_//;s/\..*//')
           echo "RELEASE_TAG=os9-$TIMESTAMP" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_DATE=${TIMESTAMP:0:8}" >> "$GITHUB_OUTPUT"
 
       - name: Upload usr, iso and SHA256SUMS to Bucket
         env:
@@ -66,5 +67,5 @@ jobs:
             --include=*.usr-*-verity.*.raw \
             --include=*.usr-*-verity-sig.*.raw \
             --include="SHA256SUMS"
-          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/"
+          aws s3 cp mkosi.output/elementary-liveiso.iso "s3://${{ secrets.R2_BUCKET_DAILY_INSTALLER }}/amd64/elementaryos-9.0-daily-amd64.${{ steps.get_date.outputs.RELEASE_DATE }}.iso"
 
