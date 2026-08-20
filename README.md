@@ -35,7 +35,7 @@ Generate keys and then build with `just`
 just genkey
 just do-release
 ```
-Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression). Or boot with Gnome Boxes (>=51). Then, in demo mode, install via script:
+Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with Gnome Boxes (>=51). Then, in demo mode, install via script:
 
 ```bash
 run0 elementary-install
@@ -56,17 +56,3 @@ Append the exact version ID at the end to upgrade to a specific version, or down
 - ~8gb usb stick
 - Gnome Boxes >=51 (for VM only)
 - 70gb destination disk, 4gb ram (less should be possible, but not tested)
-
-
-### Versions
-
-| Features        | elementary OS 9                    | elementary OS 9 "Classic" |
-| --------------- | ---------------------------------- | ------------------------- |
-| -> **Bootloader**      | systemd-boot (UEFI-Only)           | grub2                     |
-| -> **Atomic**          | Readonly /usr, with verity and sig | Insecure/Legacy           |
-| -> **Upgrade method**  | systemd-sysupdate, monthly                  | Manual, with apt-get      |
-| -> **Nvidia**          | Nvidia-Open available              | Manual, with apt-get      |
-| -> **Encryption**      | TPM, Passphrase or none            | TPM, Passphrase or none   |
-| -> **Packages** | Flatpak, Linuxbrew and Sysupdate   | Flatpak and apt-get       |
-| -> **Kernel**          | Latest Ubuntu, UKI                 | Latest Ubuntu, UKI        |
-| -> **Display**       | Wayland                            | X11 or Wayland                    |

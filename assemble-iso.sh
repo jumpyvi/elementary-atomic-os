@@ -44,6 +44,9 @@ touch iso_root/dists/stable/main/binary-amd64/Packages
 gzip -kf iso_root/dists/stable/main/binary-amd64/Packages
 mkdir -p iso_root/pool
 
+source ./base_${DATE}/usr/lib/os-release
+sed -i "s|PLACEHOLDER_VERSION|$PRETTY_NAME|g" iso_root/boot/grub/grub.cfg
+
 
 echo "Shoving everything in casper..."
 sudo podman run --rm -it \
