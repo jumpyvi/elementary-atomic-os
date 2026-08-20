@@ -7,7 +7,7 @@ SEARCH_DIR=.
 DATE=$(basename $(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n1))
 DATE=${DATE#liveiso_}
 
-OUT_ISO="./elementaryos-9.0-daily-$(uname -m).${DATE}.iso"
+OUT_ISO="./elementaryos-9.0-daily-$(uname -m | tr '_' '-').${DATE}.iso"
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
   | grep -E '/elementary_[0-9]{14}\.raw$' \
