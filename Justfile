@@ -40,28 +40,13 @@ clean:
     just run-in-podman mkosi clean
     sudo rm -r mkosi.tools/ mkosi.cache/ /var/cache/mkosi/*
 
-checksum-repo:
+sign-sysupdate:
     #!/usr/bin/env bash
     cd mkosi.output
-    sha256sum elementary_*.efi \
-        elementary_*.usr-*.*.raw.zst \
-        elementary_*.usr-*-verity.*.raw.zst \
-        elementary_*.usr-*-verity-sig.*.raw.zst \
-        > SHA256SUMS
-    cat SHA256SUMS
-
-checksum-ext:
-    #!/usr/bin/env bash
-    cd mkosi.output
-    mkdir ext
-    mv ext-*.raw.zst ext/
-    cd ext/
-    sha256sum ext-*.raw.zst > SHA256SUMS
-    cat SHA256SUMS
-
-serve:
-    #!/usr/bin/env bash
-    cd mkosi.output
-    echo "Sysupdate accessible in Gnome Boxes at http://10.0.2.2:7070"
-    echo "Extensions accessible in Gnome Boxes at http://10.0.2.2:7070/ext/"
-    python -m http.server 7070
+          sha256sum *.esp.raw \
+              *.usr-*.*.raw.xz \
+              *.usr-*-verity.*.raw \
+              *.usr-*-verity-sig.*.raw \
+              > SHA256SUMS
+          cat SHA256SUMS
+    cd ..
