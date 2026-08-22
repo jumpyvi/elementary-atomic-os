@@ -5,8 +5,8 @@ default:
 
 do-daily:
     #!/usr/bin/env bash
-    sudo rm -rf mkosi.output/
-    just run-in-podman mkosi -B --debug --profile=daily --force --workspace-directory=/workspace
+    sudo rm -rf mkosi.output/ && \
+    just run-in-podman mkosi -B --debug --profile=daily --force --workspace-directory=/workspace && \
     sudo ./assemble-iso.sh
 
 
@@ -40,14 +40,28 @@ clean:
     just run-in-podman mkosi clean
     sudo rm -r mkosi.tools/ mkosi.cache/ /var/cache/mkosi/*
 
-sign-repo:
+checksum-repo:
     #!/usr/bin/env bash
     cd mkosi.output
-    echo "Repo will not be signed, use verify=no."
-    echo "Generating SHA256..."
-    sha256sum elementary_*.usr-x86-64-verity-sig.*.raw \
-          elementary_*.usr-x86-64-verity.*.raw \
-          elementary_*.usr-x86-64.*.raw \
-          elementary_*.efi \
-          > SHA256SUMS
-    cd ..
+    sha256sum elementary_*.efi \
+        elementary_*.usr-*.*.raw.zst \
+        elementary_*.usr-*-verity.*.raw.zst \
+        elementary_*.usr-*-verity-sig.*.raw.zst \
+        > SHA256SUMS
+    cat SHA256SUMS
+
+checksum-ext:
+    #!/usr/bin/env bash
+    cd mkosi.output
+    mkdir ext
+    mv ext-*.raw.zst ext/
+    cd ext/
+    sha256sum ext-*.raw.zst > SHA256SUMS
+    cat SHA256SUMS
+
+serve:
+    #!/usr/bin/env bash
+    cd mkosi.output
+    echo "Sysupdate accessible in Gnome Boxes at http://10.0.2.2:7070"
+    echo "Extensions accessible in Gnome Boxes at http://10.0.2.2:7070/ext/"
+    python -m http.server 7070

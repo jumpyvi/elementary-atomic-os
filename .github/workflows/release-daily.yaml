@@ -37,24 +37,13 @@ jobs:
           sudo chown -R "$(id -u):$(id -g)" mkosi.output
           sudo chmod -R u+rwX mkosi.output
 
-      - name: Compress (xz) usr partition
-        run: |
-          find mkosi.output -maxdepth 1 -type f -name "*.usr-*.raw" ! -name "*verity*" -exec xz -7v -T0 {} +
-
       - name: Generate SHA256SUMS (all partitions)
-        run: |
-          cd mkosi.output
-          sha256sum *.esp.raw \
-              *.usr-*.*.raw.xz \
-              *.usr-*-verity.*.raw \
-              *.usr-*-verity-sig.*.raw \
-              > SHA256SUMS
-          cat SHA256SUMS
+        run: just sign-repo
 
       - name: Extract Date
         run: |
           set -euo pipefail
-          FILE_PATH=$(ls mkosi.output/*.usr-*.raw.xz | head -n 1)
+          FILE_PATH=$(ls mkosi.output/*.usr-*.raw.zst | head -n 1)
           TIMESTAMP=$(basename "$FILE_PATH" | grep -oE '[0-9]{14}' | head -n 1 || true)
           if [ -z "$TIMESTAMP" ]; then
             echo "Fatal: No timpestamped file found."
@@ -76,9 +65,9 @@ jobs:
           cd mkosi.output
           find . -maxdepth 1 -type f \( \
               -name "*.esp.raw" \
-              -o -name "*.usr-*.*.raw.xz" \
-              -o -name "*.usr-*-verity.*.raw" \
-              -o -name "*.usr-*-verity-sig.*.raw" \
+              -o -name "*.usr-*.*.raw.zst" \
+              -o -name "*.usr-*-verity.*.raw.zst" \
+              -o -name "*.usr-*-verity-sig.*.raw.zst" \
             \) -print0 | while IFS= read -r -d '' f; do
               aws s3 cp "$f" "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/" --cache-control "public, max-age=31536000, immutable"
             done
@@ -105,12 +94,8 @@ jobs:
             --content-type "text/plain" \
             --cache-control "public, max-age=31536000, immutable"
 
-      - name: Compress and Checksum Extensions
-        run: |
-          cd mkosi.output
-          xz -5 -T0 ext-*.raw
-          sha256sum ext-*.raw.xz > SHA256SUMS
-          cat SHA256SUMS
+      - name: Checksum Extensions
+        run: just checksum-ext
 
       - name: Release Extensions
         uses: softprops/action-gh-release@v3
@@ -118,5 +103,5 @@ jobs:
           tag_name: ${{ steps.get_date.outputs.RELEASE_DATE }}
           name: Extension release ${{ steps.get_date.outputs.RELEASE_DATE }}
           files: |
-            mkosi.output/ext-*.raw.xz
-            mkosi.output/SHA256SUMS
+            mkosi.output/ext/ext-*.raw.zst
+            mkosi.output/ext/SHA256SUMS
