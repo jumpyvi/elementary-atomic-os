@@ -5,15 +5,15 @@ echo "Thank you for testing! <3"
 
 medium=$(findmnt -rn -t iso9660,udf -o TARGET | head -1)
 extra="$medium/extra"
-raw_xz_src=$(find "$extra" -maxdepth 1 -type f -name '*.raw.xz' | head -n1)
+raw_zstd=$(find "$extra" -maxdepth 1 -type f -name '*.raw.zst' | head -n1)
 repart_src="/opt/repart-target/"
 
-if [ -z "$raw_xz_src" ]; then
-    echo "Installation aborted: No .raw.xz file found."
+if [ -z "$raw_zstd" ]; then
+    echo "Installation aborted: No .raw.zst file found."
     exit 1
 fi
 
-echo "Using source image: $raw_xz_src"
+echo "Using source image: $raw_zstd"
 
 PS3="Select installation disk (ALL DATA WILL BE LOST): "
 
@@ -69,7 +69,7 @@ fi
 
 raw_src="$root_mount/source.raw"
 echo "Decompressing image into the scratch buffer..."
-xz -dk -T0 -c "$raw_xz_src" > "$raw_src"
+zstd -dc -T0 "$raw_zstd" > "$raw_src"
 
 echo "Configuring partitions..."
 systemd-repart \

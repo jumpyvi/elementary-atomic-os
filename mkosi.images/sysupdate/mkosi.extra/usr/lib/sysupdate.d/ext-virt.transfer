@@ -4,7 +4,7 @@ Features=ext-virt
 [Source]
 Type=url-file
 Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download/
-MatchPattern=ext-virt_@v.raw.xz
+MatchPattern=ext-virt_@v.raw.zst
 
 [Target]
 Type=regular-file

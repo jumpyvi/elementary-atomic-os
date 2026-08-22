@@ -10,17 +10,13 @@ DATE=${DATE#liveiso_}
 OUT_ISO="./elementaryos-9.0-daily-$(uname -m | tr '_' '-').${DATE}.iso"
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
-  | grep -E '/elementary_[0-9]{14}\.raw$' \
+  | grep -E '/elementary_[0-9]{14}\.raw.zst$' \
   | head -n1)
 
 if [[ -z "$RAW_IMAGE" ]]; then
-  echo "error: No .raw image found matching the pattern." >&2
+  echo "error: No .raw.zst image found matching the pattern." >&2
   exit 1
 fi
-
-XZ_IMAGE="${RAW_IMAGE}.xz"
-echo "Compressing raw image: $RAW_IMAGE -> $XZ_IMAGE..."
-xz -1 -T0 -c "$RAW_IMAGE" > "$XZ_IMAGE"
 
 # Detect version
 output_dir=$(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
@@ -48,7 +44,7 @@ source ./base_${DATE}/usr/lib/os-release
 sed -i "s|PLACEHOLDER_VERSION|$PRETTY_NAME|g" iso_root/boot/grub/grub.cfg
 
 
-echo "Shoving everything in casper..."
+echo "Creating casper liveiso..."
 sudo podman run --rm -it \
   --network host \
   --dns 8.8.8.8 \
@@ -61,7 +57,7 @@ sudo podman run --rm -it \
            cp ${base_name}/boot/vmlinuz-\${KERNEL_VERSION} iso_root/casper/vmlinuz
            cp ${base_name}/boot/initrd.img-\${KERNEL_VERSION} iso_root/casper/initrd
            rm -f iso_root/casper/filesystem.squashfs
-           mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp xz
+           mksquashfs ${base_name} iso_root/casper/filesystem.squashfs -comp zstd
            grub-mkrescue -o custom_ubuntu_live.iso iso_root/
            echo 'Live environment generated!'"
 
@@ -70,7 +66,7 @@ echo "Generating installer..."
 BASE_ISO="./custom_ubuntu_live.iso"
 rm -f "$OUT_ISO"
 
-LOCAL_RAW_IMAGE="./$(basename "$XZ_IMAGE")"
+LOCAL_RAW_IMAGE="./$(basename "$RAW_IMAGE")"
 
 podman run --rm \
   --security-opt label=disable \

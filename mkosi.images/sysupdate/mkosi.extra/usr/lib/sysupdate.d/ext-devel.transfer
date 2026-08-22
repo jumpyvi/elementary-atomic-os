@@ -4,7 +4,7 @@ Features=ext-devel
 [Source]
 Type=url-file
 Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download/
-MatchPattern=ext-devel_@v.raw.xz
+MatchPattern=ext-devel_@v.raw.zst
 
 [Target]
 Type=regular-file
