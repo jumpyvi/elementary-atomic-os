@@ -38,7 +38,7 @@ jobs:
           sudo chmod -R u+rwX mkosi.output
 
       - name: Generate SHA256SUMS (all partitions)
-        run: just sign-repo
+        run: just checksum-repo
 
       - name: Extract Date
         run: |
@@ -52,7 +52,7 @@ jobs:
           echo "Release date: $TIMESTAMP"
           echo "RELEASE_DATE=$TIMESTAMP" >> "$GITHUB_OUTPUT"
 
-      - name: Upload usr, iso and SHA256SUMS to Bucket
+      - name: Upload sysupdate, iso and SHA256SUMS to Bucket
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
