@@ -1,16 +1,17 @@
 [Transfer]
 ProtectVersion=%A
 Features=nvidia-driver
+Verify=no
 
 [Source]
 Type=url-file
 Path=https://github.com/jumpyvi/elementary-atomic-os/releases/latest/download/
-MatchPattern=elementary-nvidia-%a_@v.addon.efi elementary-nvidia-%a_@v.addon.efi.xz
+MatchPattern=ext-nvidia-addon-%a_@v.addon.efi
 
 [Target]
 Type=regular-file
 Path=/EFI/Linux
 PathRelativeTo=boot
-MatchPattern=Elementary_@v.efi.extra.d/nvidia.addon.efi
+MatchPattern=elementary_@v_%a.efi.extra.d/nvidia.addon.efi
 Mode=0444
 InstancesMax=2

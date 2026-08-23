@@ -1,5 +1,6 @@
 [Transfer]
 Features=ext-devel
+Verify=no
 
 [Source]
 Type=url-file
