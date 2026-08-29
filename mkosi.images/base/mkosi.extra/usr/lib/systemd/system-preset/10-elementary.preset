@@ -1,4 +1,5 @@
 enable systemd-resolved
+enable apparmor-firstboot.service
 enable NetworkManager.service
 enable NetworkManager-wait-online.service
 disable systemd-networkd
