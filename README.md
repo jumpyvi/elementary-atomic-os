@@ -18,7 +18,7 @@
 <p align="center">
   <img src="https://github.com/elementary/os/actions/workflows/stable-8.1.yml/badge.svg" alt="Stable 8.1">
   <img src="https://github.com/elementary/os/actions/workflows/daily-8.1.yml/badge.svg" alt="Daily 8.1">
-  <img src="https://github.com/jumpyvi/elementary-atomic-os/actions/workflows/release.yaml/badge.svg" alt="Monthly 9.0">
+  <img src="https://github.com/elementary/os/actions/workflows/daily-9.0.yml/badge.svg" alt="Daily 9.0">
 </p>
 
 ---
