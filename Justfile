@@ -19,14 +19,14 @@ genkey:
 
 run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
-    sudo mkdir -p /var/cache/mkosi
+    sudo mkdir -p ~/.cache/mkosi
     
     sudo podman run --rm -it \
         --network host \
         --dns 8.8.8.8 \
         --privileged \
         --security-opt label=disable \
-        -v /var/cache/mkosi:/var/cache/mkosi \
+        -v ~/.cache/mkosi:/var/cache/mkosi \
         -v /dev:/dev \
         -v "{{invocation_directory()}}:/work" \
         -w /work \
@@ -38,7 +38,7 @@ run-in-podman +command:
 
 clean:
     just run-in-podman mkosi clean
-    sudo rm -r mkosi.tools/ mkosi.cache/ /var/cache/mkosi/*
+    sudo rm -r mkosi.tools/ mkosi.cache/ ~/.cache/mkosi/*
 
 checksum-repo:
     #!/usr/bin/env bash
