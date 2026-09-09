@@ -7,7 +7,9 @@ SEARCH_DIR=.
 DATE=$(basename $(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n1))
 DATE=${DATE#liveiso_}
 
-OUT_ISO="./elementaryos-9.0-daily-$(uname -m | tr '_' '-').${DATE}.iso"
+ARCH=$(uname -m | tr '_' '-')
+
+OUT_ISO="./elementaryos-9.0-daily-${ARCH}.${DATE}.iso"
 
 RAW_IMAGE=$(find "$SEARCH_DIR" -maxdepth 1 -type f \
   | grep -E '/elementary_[0-9]{14}\.raw.zst$' \
@@ -41,7 +43,9 @@ gzip -kf iso_root/dists/stable/main/binary-amd64/Packages
 mkdir -p iso_root/pool
 
 source ./base_${DATE}/usr/lib/os-release
-sed -i "s|PLACEHOLDER_VERSION|$PRETTY_NAME|g" iso_root/boot/grub/grub.cfg
+sed -i "s|%PLACEHOLDER_VERSION%|$PRETTY_NAME|g" iso_root/boot/grub/grub.cfg
+sed -i "s|%PLACEHOLDER_VERSION%|$PRETTY_NAME|g" iso_root/.disk/info
+sed -i "s|%PLACEHOLDER_ARCH%|${ARCH})|g" iso_root/.disk/info
 
 
 echo "Creating casper liveiso..."
