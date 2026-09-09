@@ -9,10 +9,11 @@ do-daily:
     just run-in-podman mkosi -B --debug --profile=daily --force --workspace-directory=/workspace && \
     sudo ./assemble-iso.sh
 
-
-do-release:
+do-stable:
     #!/usr/bin/env bash
-    echo "nyi, run do-daily instead"
+    echo "Stable releases are not yet available, running daily build instead"
+    just do-daily
+    
 
 genkey:
     just run-in-podman mkosi genkey
