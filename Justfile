@@ -6,7 +6,7 @@ default:
 do-daily:
     #!/usr/bin/env bash
     sudo rm -rf mkosi.output/ && \
-    just run-in-podman mkosi -B --debug --profile=daily --force --workspace-directory=/workspace && \
+    just run-in-podman mkosi -B --debug --profile=daily --profile=$(uname -m | tr '_' '-') --force --workspace-directory=/workspace && \
     sudo ./assemble-iso.sh
 
 do-stable:
