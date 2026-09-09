@@ -29,8 +29,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Maximize build space
-        uses: ublue-os/remove-unwanted-software@v8
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Get arch
         id: get_arch
