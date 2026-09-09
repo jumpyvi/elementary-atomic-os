@@ -26,7 +26,7 @@ run-in-podman +command:
         --network host \
         --dns 8.8.8.8 \
         --privileged \
-        --platform linux/$(arch)
+        --platform linux/$(arch) \
         --security-opt label=disable \
         -v ~/.cache/mkosi:/var/cache/mkosi \
         -v /dev:/dev \
