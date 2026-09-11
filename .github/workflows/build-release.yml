@@ -50,14 +50,9 @@ jobs:
       - name: Generate key
         run: just genkey
 
-      - name: Release
+      - name: Build with mkosi
         # Will either run do-daily or do-stable
         run: just do-${{ inputs.build_type }}
-
-      - name: Fix output dir ownership
-        run: |
-          sudo chown -R "$(id -u):$(id -g)" mkosi.output
-          sudo chmod -R u+rwX mkosi.output
 
       - name: Generate SHA256SUMS (all partitions)
         run: just checksum-repo

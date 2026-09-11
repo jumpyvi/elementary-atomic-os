@@ -3,18 +3,17 @@ default:
     set -xeuo pipefail
     just --choose
 
-do-daily:
+_do-release profile:
     #!/usr/bin/env bash
     sudo rm -rf mkosi.output/ && \
-    just run-in-podman mkosi -B --debug --profile=daily --profile=$(uname -m | tr '_' '-') --force --workspace-directory=/workspace && \
+    just run-in-podman mkosi -B --debug --profile={{profile}} --profile=$(uname -m | tr '_' '-') --force --workspace-directory=/workspace && \
     sudo ./assemble-iso.sh
-    sudo chown -R $UID:$UID mkosi.output/
+    sudo chown -R "$(id -u):$(id -g)" mkosi.output
+    sudo chmod -R u+rwX mkosi.output
 
-do-stable:
-    #!/usr/bin/env bash
-    echo "Stable releases are not yet available, running daily build instead"
-    just do-daily
-    sudo chown -R $UID:$UID mkosi.output/
+do-daily: (_do-release "daily")
+
+do-stable: (_do-release "stable")
     
 
 genkey:

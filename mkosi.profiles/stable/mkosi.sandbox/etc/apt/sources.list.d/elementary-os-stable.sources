@@ -1,5 +1,5 @@
 Types: deb
-URIs: https://ppa.launchpadcontent.net/elementary-os/daily/ubuntu
+URIs: https://ppa.launchpadcontent.net/elementary-os/stable/ubuntu
 Suites: resolute
 Components: main
 Signed-By: /etc/apt/keyrings/elementary-os.gpg
