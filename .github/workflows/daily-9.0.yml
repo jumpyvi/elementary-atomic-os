@@ -64,6 +64,18 @@ jobs:
       - name: Generate SHA256SUMS (all partitions)
         run: just checksum-repo
 
+      - name: Import GPG Key
+        run: echo "${{ secrets.SYSUPDATE_GPG_PK }}" | gpg --batch --import
+
+      - name: Generate Signature
+        run: |
+          cd mkosi.output/
+          gpg --batch --pinentry-mode loopback \
+              --passphrase "${{ secrets.SYSUPDATE_GPG_PASS }}" \
+              --local-user "Elementary Sysupdate Key" \
+              --output SHA256SUMS.gpg \
+              --detach-sign SHA256SUMS
+
       - name: Extract Date
         id: get_date
         run: |
@@ -104,6 +116,11 @@ jobs:
           aws s3 cp mkosi.output/SHA256SUMS \
             "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/SHA256SUMS" \
             --content-type "text/plain" \
+            --cache-control "no-cache"
+
+          aws s3 cp mkosi.output/SHA256SUMS.gpg \
+            "s3://${{ secrets.R2_BUCKET_DAILY_UPDATES }}/$ARCH/SHA256SUMS.gpg" \
+            --content-type "application/pgp-signature" \
             --cache-control "no-cache"
 
           # 3. Live ISO + hash

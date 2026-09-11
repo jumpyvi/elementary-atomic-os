@@ -8,11 +8,13 @@ do-daily:
     sudo rm -rf mkosi.output/ && \
     just run-in-podman mkosi -B --debug --profile=daily --profile=$(uname -m | tr '_' '-') --force --workspace-directory=/workspace && \
     sudo ./assemble-iso.sh
+    sudo chown -R $UID:$UID mkosi.output/
 
 do-stable:
     #!/usr/bin/env bash
     echo "Stable releases are not yet available, running daily build instead"
     just do-daily
+    sudo chown -R $UID:$UID mkosi.output/
     
 
 genkey:
