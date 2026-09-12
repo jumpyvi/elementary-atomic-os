@@ -35,13 +35,20 @@ Generate keys and then build with `just`
 just genkey
 just do-daily
 ```
-Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with GNOME Boxes (>=51). Then, in demo mode, install via script:
+Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with GNOME Boxes (>=51).
+
+### Installation (sysupdate)
+
+Once in the liveiso, inside the terminal or a tty, run:
 
 ```bash
 run0 elementary-install
 ```
+You will be prompted with installation options
 
-It should take arround a minute, then reboot. After boot, Flatpak should start installing, it might take a while.
+### Installation (classic)
+
+To install classic mode, follow the steps in the GUI installer from the liveiso.
 
 ## Operations
 
@@ -55,5 +62,5 @@ Append the exact version ID at the end to upgrade to a specific version, or down
 - UEFI with secure boot disabled
 - 8 GB of USB flash drive
 - GNOME Boxes >=51 (for VM only)
-- 64 GB of destination disk
+- 55 GB of destination disk
 - 4 GB of system memory (RAM)

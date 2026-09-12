@@ -24,7 +24,7 @@ fi
 output_dir=$(ls -d liveiso_* | grep -vE '\.(raw|iso|vmlinuz|initrd|efi|manifest)$' | head -n 1)
 
 if [[ -z "$output_dir" ]]; then
-  echo "error: No mkosi.output, run just build-classic first." >&2
+  echo "error: No mkosi.output, run just do-daily or do-stable first." >&2
   exit 1
 fi
 
