@@ -33,7 +33,7 @@ Generate keys and then build with `just`
 
 ```bash
 just genkey
-just do-release
+just do-daily
 ```
 Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with GNOME Boxes (>=51). Then, in demo mode, install via script:
 
