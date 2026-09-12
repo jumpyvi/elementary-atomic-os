@@ -52,7 +52,7 @@ It should take arround a minute, then reboot. After boot, Flatpak should start i
 Append the exact version ID at the end to upgrade to a specific version, or downgrade.
 
 ## Minimum specs
-- UEFI
+- UEFI with secure boot disabled
 - ~8gb usb stick
 - Gnome Boxes >=51 (for VM only)
 - 70gb destination disk, 4gb ram (less should be possible, but not tested)
