@@ -14,7 +14,7 @@ _do-release profile:
 do-daily: (_do-release "daily")
 
 do-stable: (_do-release "stable")
-    
+
 
 genkey:
     just run-in-podman mkosi genkey
@@ -22,7 +22,7 @@ genkey:
 run-in-podman +command:
     mkdir -p {{env_var('HOME')}}/.cache/mkosi-workspace
     sudo mkdir -p ~/.cache/mkosi
-    
+
     sudo podman run --rm -it \
         --network host \
         --dns 8.8.8.8 \
