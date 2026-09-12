@@ -53,7 +53,7 @@ Append the exact version ID at the end to upgrade to a specific version, or down
 
 ## Minimum specs
 - UEFI with secure boot disabled
-- ~8gb usb stick
+- 8 GB of USB flash drive
 - GNOME Boxes >=51 (for VM only)
 - 64 GB of destination disk
 - 4 GB of system memory (RAM)
