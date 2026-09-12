@@ -35,7 +35,7 @@ Generate keys and then build with `just`
 just genkey
 just do-release
 ```
-Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with Gnome Boxes (>=51). Then, in demo mode, install via script:
+Create install media with [Fedora Media Writer](https://flathub.org/en/apps/org.fedoraproject.MediaWriter) or [Impression](flathub.org/en/apps/io.gitlab.adhami3310.Impression), or boot with GNOME Boxes (>=51). Then, in demo mode, install via script:
 
 ```bash
 run0 elementary-install
